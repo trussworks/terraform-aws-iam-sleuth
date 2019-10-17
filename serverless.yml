@@ -1,0 +1,26 @@
+
+service: aws-iam-sleuth
+
+
+provider:
+  name: aws
+  runtime: python3.6
+
+
+functions:
+  iam-sleuth:
+    handler: sleuth/handler.handler
+    memorySize: 256
+    events:
+      - schedule:
+          name: Test_event
+          description: Just a test event
+          rate: rate(60 minutes)
+          enabled: true
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
+plugins:
+  - serverless-python-requirements
