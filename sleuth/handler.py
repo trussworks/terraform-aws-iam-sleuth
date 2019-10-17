@@ -2,7 +2,10 @@ import json
 import logging
 import logging.config
 
-
+try:
+  import unzip_requirements
+except ImportError:
+  pass
 
 def handler(event, context):
     """

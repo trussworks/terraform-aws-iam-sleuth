@@ -18,9 +18,19 @@ functions:
           rate: rate(60 minutes)
           enabled: true
 
+package:
+  # python doesn't need node_modules
+  exclude:
+    - .pre-commit*/**
+    - node_modules/**
+    - .pytest_cache/**
+    - tests/**
+    - .venv/**
+
 custom:
   pythonRequirements:
     dockerizePip: non-linux
+    zip: true
 
 plugins:
   - serverless-python-requirements

@@ -75,8 +75,6 @@ def audit_key(key, rotate_age=80, expire_age=90):
     if age >= expire_age:
         return age, valid_for, 'expire'
 
-    import pudb; pudb.set_trace()
-
 
 def print_key_report(users, status_filter=None):
     """Prints table of report
@@ -120,6 +118,7 @@ def audit():
             k['ExpiresIn'] = valid_for
             k['Valid'] = valid
 
+    #mainly for debugging
     print_key_report(iam_users)
 
 
