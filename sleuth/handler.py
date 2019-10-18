@@ -8,8 +8,7 @@ except ImportError:
   pass
 
 
-import sleuth
-
+from sleuth import sleuth
 
 def handler(event, context):
     """
