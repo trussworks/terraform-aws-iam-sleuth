@@ -1,12 +1,38 @@
 import datetime as dt
 import logging
 
-import boto3
 
+import boto3
+from pythonjsonlogger import jsonlogger
 from tabulate import tabulate
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
+
+logHandler = logging.StreamHandler()
+supported_keys = [
+            'asctime',
+            'created',
+            'filename',
+            'funcName',
+            'levelname',
+            'levelno',
+            'lineno',
+            'module',
+            'msecs',
+            'message',
+            'name',
+            'process',
+            'processName',
+            'relativeCreated',
+        ]
+
+log_format = lambda x: ['%({0:s})'.format(i) for i in x]
+custom_format = ' '.join(log_format(supported_keys))
+
+formatter = jsonlogger.JsonFormatter(custom_format)
+logHandler.setFormatter(formatter)
+LOGGER.addHandler(logHandler)
 
 IAM = boto3.client('iam')
 
