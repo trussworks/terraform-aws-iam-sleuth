@@ -63,14 +63,11 @@ def get_iam_users():
     users = []
     for resp in iter:
         for u in resp['Users']:
-            print(u)
             u['keys'] = get_iam_key_info(u['UserName'])
             users.append(u)
 
     return users
 
-
-# inspect users to find old IAM keys
 
 def audit_key(key, rotate_age=80, expire_age=90):
     """Looks at key info and determines if out of compliance.
@@ -102,6 +99,23 @@ def audit_key(key, rotate_age=80, expire_age=90):
         return age, valid_for, 'expire'
 
 
+def disable_key(user, key):
+    """Disables an AWS access key
+
+    Parameters:
+    user (str): User ID of key to disable
+    key (str): Key ID to disable
+
+    Returns:
+    None
+    """
+    LOGGER.info('Disabling key {} for User {}'.format(key, user))
+    IAM.update_access_key(UserName=user,
+                          AccessKeyId=key,
+                          Status='Inactive')
+    LOGGER.info('Successfully disabled key {} for User {}'.format(key, user))
+
+
 def print_key_report(users, status_filter=None):
     """Prints table of report
 
@@ -123,7 +137,7 @@ def print_key_report(users, status_filter=None):
                 k['ExpiresIn']
             ])
 
-    print(tabulate(tbl_data))
+    print(tabulate(tbl_data, headers=['UserName', 'Key ID', 'Status', 'Expires in Days']))
 
 # pull slack users
 
@@ -135,7 +149,7 @@ def print_key_report(users, status_filter=None):
 
 
 def audit():
-    LOGGER.info('Sleuth running')
+    LOGGER.info('Sleuth running', extra={'lalala':'blahblah'})
     iam_users = get_iam_users()
     for u in iam_users:
         for k in u['keys']:
@@ -144,8 +158,22 @@ def audit():
             k['ExpiresIn'] = valid_for
             k['Valid'] = valid
 
+
     #mainly for debugging
     print_key_report(iam_users)
+
+    # lets take actions on keys
+    # first we'll notify on old keys
+    # second we'll notify and disable expired keys
+    for u in iam_users:
+        for k in u['keys']:
+            if k['Valid'] == 'old':
+                LOGGER.info('User {} has an old key'.format(u['UserName']))
+
+            if k['Valid'] == 'expire':
+                LOGGER.info('User {} key will be disabled'.format(u['UserName']))
+                disable_key(u['UserName'], k['AccessKeyId'])
+
 
 
 if __name__ == '__main__':

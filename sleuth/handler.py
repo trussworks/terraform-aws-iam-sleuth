@@ -7,6 +7,10 @@ try:
 except ImportError:
   pass
 
+
+import sleuth
+
+
 def handler(event, context):
     """
     Incoming lambda handler
@@ -18,6 +22,8 @@ def handler(event, context):
         "message": "Handler responding here",
         "input": "event"
     }
+
+    sleuth.audit()
 
     response = {
         "statusCode": 200,
