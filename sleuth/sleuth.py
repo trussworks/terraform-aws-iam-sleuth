@@ -43,6 +43,69 @@ SLACK_USERS = {
     'lee': 'UP6A26UAE'
 }
 
+class Key():
+    username = ""
+    key_id = ""
+    created = None
+    status = ""
+    audit_state = None
+
+    age = 0
+    valid_for = 0
+
+    def __init__(self, username, key_id, status, created):
+        self.username = username
+        self.key_id = key_id
+        self.status = status
+        self.created = created
+
+        self.age = (dt.datetime.now(dt.timezone.utc) - self.created).days
+
+    def audit(self, rotate_age, expire_age):
+        """
+        Audits the key and sets the status state based on key age
+
+        Note if the key is below rotate the audit_state=good. If the key is disabled will be marked as disabled.
+
+        Parameters:
+        rotate (int): Age key must be before audit_state=old
+        expire (int): Age key must be before audit_state=expire
+
+        Returns:
+        None
+        """
+        assert(rotate_age < expire_age)
+
+        self.valid_for = expire_age - self.age
+
+        if self.age < rotate_age:
+            self.audit_state = 'good'
+        if self.age >= rotate_age and self.age < expire_age:
+            self.audit_state = 'old'
+        if self.age >= expire_age:
+            self.audit_state = 'expire'
+        if self.status == 'Inactive':
+            self.audit_state = 'disabled'
+
+
+
+class User():
+    username = ""
+    user_id = ""
+    slack_id = ""
+    keys = []
+
+    def __init__(self, user_id, username, slack_id=None):
+        self.user_id = user_id
+        self.username = username
+        self.slack_id = slack_id
+
+    def audit(self, rotate=80, expire=90):
+        for k in self.keys:
+            k.audit(rotate, expire)
+
+
+
 def get_iam_key_info(user):
     """Fetches User key info
 
@@ -50,10 +113,18 @@ def get_iam_key_info(user):
     user (str): user to fetch key info for
 
     Returns:
-    dict:AWS response on key info
+    list (Key): Return list of keys for a single user
     """
-    resp = IAM.list_access_keys(UserName=user)
-    return resp['AccessKeyMetadata']
+    resp = IAM.list_access_keys(UserName=user.username)
+    keys = []
+    for k in resp['AccessKeyMetadata']:
+        keys.append(Key(k['UserName'],
+                        k['AccessKeyId'],
+                        k['Status'],
+                        k['CreateDate']))
+    return keys
+
+
 
 def get_iam_users():
     """Fetches IAM users WITH key info
@@ -61,8 +132,8 @@ def get_iam_users():
     Parameters:
     None
 
-    Resturs:
-    list:IAM user info along with access key info
+    Returns:
+    list (User): User and related access key info
     """
     pag = IAM.get_paginator('list_users')
     iter = pag.paginate()
@@ -70,43 +141,14 @@ def get_iam_users():
     users = []
     for resp in iter:
         for u in resp['Users']:
-            u['keys'] = get_iam_key_info(u['UserName'])
-            users.append(u)
+            user = User(u['UserId'], u['UserName'], find_user(u['UserName']))
+            user.keys = get_iam_key_info(user)
+            users.append(user)
 
     return users
 
 
-def audit_key(key, rotate_age=80, expire_age=90):
-    """Looks at key info and determines if out of compliance.
-
-    Parameters:
-    key (dicts): Key info of user to inspect in boto json format
-    rotate_age (int): Days when a key is considered to be rotated, must be less than expire_age
-    expire_age (int): Days when key will be expired, must be greater than rotate_age
-
-    Returns:
-    int: Age of key in days
-    int: number of days till expire_age is met
-    str: State of the key: disabled, good, old, expire
-    """
-    assert(rotate_age < expire_age)
-
-
-    age = (dt.datetime.now(dt.timezone.utc) - key['CreateDate']).days
-    valid_for = expire_age - age
-
-    if key['Status'] == 'Inactive':
-        return age, valid_for, 'disabled'
-
-    if age < rotate_age:
-        return age, valid_for, 'good'
-    if age >= rotate_age and age < expire_age:
-        return age, valid_for, 'old'
-    if age >= expire_age:
-        return age, valid_for, 'expire'
-
-
-def disable_key(user, key):
+def disable_key(key, username):
     """Disables an AWS access key
 
     Parameters:
@@ -116,14 +158,14 @@ def disable_key(user, key):
     Returns:
     None
     """
-    LOGGER.info('Disabling key {} for User {}'.format(key, user))
-    IAM.update_access_key(UserName=user,
-                          AccessKeyId=key,
+    LOGGER.info('Disabling key {} for User {}'.format(key.key_id, username))
+    IAM.update_access_key(UserName=key.username,
+                          AccessKeyId=key.key_id,
                           Status='Inactive')
-    LOGGER.info('Successfully disabled key {} for User {}'.format(key, user))
+    LOGGER.info('Successfully disabled key {} for User {}'.format(key.key_id, username))
 
 
-def print_key_report(users, status_filter=None):
+def print_key_report(users):
     """Prints table of report
 
     Parameters:
@@ -136,15 +178,16 @@ def print_key_report(users, status_filter=None):
     tbl_data = []
 
     for u in users:
-        for k in u['keys']:
+        for k in u.keys:
             tbl_data.append([
-                u['UserName'],
-                k['AccessKeyId'],
-                k['Valid'],
-                k['ExpiresIn']
+                u.username,
+                u.slack_id,
+                k.key_id,
+                k.audit_state,
+                k.valid_for
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Key ID', 'Status', 'Expires in Days']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Expires in Days']))
 
 
 # push notification to integration with list of upcoming
@@ -189,16 +232,28 @@ def find_user(username):
         return username
 
 
-def prepare_message(old_users, expired_users):
+def prepare_message(users):
     """Prepares message for sending via webhook
 
     Parameters:
-    old_users (list): Dicts containing user and key age
-    expired_users (list): Dicts containing user and key age
+    users (list): Users with slack and key info attached to user object
 
     Returns:
-    None
+    bool: True if slack send, false if not
+    dict: Message prepared for slack API
     """
+
+    old_msgs = []
+    expired_msgs = []
+    for u in users:
+        for k in u.keys:
+            if k.audit_state == 'old':
+                old_msgs.append('{}\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
+
+            if k.audit_state == 'expire':
+                expired_msgs.append('{}\'s key is disabled.'.format(u.slack_id))
+
+
 
     old_attachment = {
         'title': 'IAM users with access keys expiring',
@@ -206,7 +261,7 @@ def prepare_message(old_users, expired_users):
         'fields': [
             {
                 'title': 'Users',
-                'value': '\n'.join(['{}\'s key expires in {} days'.format(find_user(u['UserName']), u['ExpiresIn'])for u in old_users]),
+                'value': '\n'.join(old_msgs),
             }
         ]
     }
@@ -217,7 +272,7 @@ def prepare_message(old_users, expired_users):
         'fields': [
             {
                 'title': 'Users',
-                'value': '\n'.join(['{}\'s key is disabled'.format(find_user(u['UserName'])) for u in expired_users]),
+                'value': '\n'.join(expired_msgs),
             }
         ]
     }
@@ -234,62 +289,44 @@ def prepare_message(old_users, expired_users):
         "attachments": []
     }
 
+    send_to_slack = False
     # only add the attachments that have users
-    if len(old_users) > 0:
+    if len(old_msgs) > 0:
         msg['attachments'].append(old_attachment)
+        send_to_slack = True
 
-    if len(expired_users) > 0:
+    if len(expired_msgs) > 0:
         msg['attachments'].append(expired_attachment)
+        send_to_slack = True
 
-
-
-    # only post to slack if needed
-    if len(msg['attachments']) > 0:
-        msg['attachments'].append(howto_attachment)
-        send_slack_message(msg)
-    else:
-        LOGGER.info('Nothing to report')
+    msg['attachments'].append(howto_attachment)
+    return send_to_slack, msg
 
 
 def audit():
     LOGGER.info('Sleuth running')
     iam_users = get_iam_users()
-    for u in iam_users:
-        for k in u['keys']:
-            age, valid_for, valid = audit_key(k)
-            k['Age'] = age
-            k['ExpiresIn'] = valid_for
-            k['Valid'] = valid
 
+    # lets audit keys so the ages and state are set
+    for u in iam_users:
+        u.audit(80, 90)
 
     #mainly for debugging
     print_key_report(iam_users)
 
-    old_keys_info = []
-    expired_keys_info = []
-    # lets take actions on keys
+    # lets disabled expired keys and build list of old and expired for slack
     for u in iam_users:
-        for k in u['keys']:
-            if k['Valid'] == 'old':
-                LOGGER.info('User {} has an old key'.format(u['UserName']))
-                old_keys_info.append({
-                    'UserName': u['UserName'],
-                    'AccessKeyId': k['AccessKeyId'],
-                    'Valid': k['Valid'],
-                    'ExpiresIn': k['ExpiresIn']
-                })
+        for k in u.keys:
+            if k.audit_state == 'expire':
+                disable_key(k, u.username)
 
-            if k['Valid'] == 'expire':
-                LOGGER.info('User {} key will be disabled'.format(u['UserName']))
-                disable_key(u['UserName'], k['AccessKeyId'])
-                expired_keys_info.append({
-                    'UserName': u['UserName'],
-                    'AccessKeyId': k['AccessKeyId'],
-                    'Valid': k['Valid'],
-                    'ExpiresIn': k['ExpiresIn']
-                })
 
-    slack_msg = prepare_message(old_keys_info, expired_keys_info)
+    # lets send slack messages
+    send_to_slack, slack_msg = prepare_message(iam_users)
+    if send_to_slack:
+        send_slack_message(slack_msg)
+    else:
+        LOGGER.info('Nothing to report')
 
 
 if __name__ == '__main__':
