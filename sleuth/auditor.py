@@ -6,7 +6,7 @@ import logging
 from pythonjsonlogger import jsonlogger
 from tabulate import tabulate
 
-from services import get_iam_users, disable_key, send_slack_message, prepare_message
+from sleuth.services import get_iam_users, disable_key, send_slack_message, prepare_message
 
 LOGGER = logging.getLogger('sleuth')
 

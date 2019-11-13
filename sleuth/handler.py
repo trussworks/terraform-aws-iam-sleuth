@@ -2,12 +2,13 @@ import json
 import logging
 import logging.config
 
-from pythonjsonlogger import jsonlogger
-
 try:
   import unzip_requirements
 except ImportError:
   pass
+
+from pythonjsonlogger import jsonlogger
+
 
 # setup module wide logger
 LOGGER = logging.getLogger('sleuth')
@@ -38,7 +39,7 @@ formatter = jsonlogger.JsonFormatter(custom_format)
 logHandler.setFormatter(formatter)
 LOGGER.addHandler(logHandler)
 
-from auditor import audit
+from sleuth.auditor import audit
 
 def handler(event, context):
     """

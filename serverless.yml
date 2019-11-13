@@ -44,6 +44,8 @@ custom:
   pythonRequirements:
     dockerizePip: non-linux
     zip: true
+    slim: true
+    invalidateCaches: true
 
 plugins:
   - serverless-python-requirements

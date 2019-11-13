@@ -1,3 +1,4 @@
+import json
 import logging
 
 import boto3
@@ -26,7 +27,7 @@ def get_iam_key_info(user):
     Returns:
     list (Key): Return list of keys for a single user
     """
-    from auditor import Key
+    from sleuth.auditor import Key
     resp = IAM.list_access_keys(UserName=user.username)
     keys = []
     for k in resp['AccessKeyMetadata']:
@@ -47,7 +48,7 @@ def get_iam_users():
     Returns:
     list (User): User and related access key info
     """
-    from auditor import User
+    from sleuth.auditor import User
 
     pag = IAM.get_paginator('list_users')
     iter = pag.paginate()
@@ -97,7 +98,6 @@ def get_ssm_value(ssm_path):
 # Slack
 ###################
 def send_slack_message(payload):
-    from aws import get_ssm_value
     webhook = get_ssm_value('/integrations/test_general')
 
     resp = requests.post(webhook, data=json.dumps(payload),
