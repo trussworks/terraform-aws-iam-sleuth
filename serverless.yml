@@ -42,6 +42,7 @@ package:
 
 custom:
   pythonRequirements:
+    fileName: build/requirements.txt
     dockerizePip: non-linux
     zip: true
     slim: true
