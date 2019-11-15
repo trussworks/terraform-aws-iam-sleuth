@@ -4,32 +4,36 @@ service: aws-iam-sleuth
 
 provider:
   name: aws
-  region: us-east-2
+  region: us-west-2
+  deploymentBucket: transcom-ppp-serverless-sleuth
   runtime: python3.6
-  iamRoleStatements:
-    - Effect: 'Allow'
-      Action:
-        - "iam:DeleteAccessKey"
-        - "iam:UpdateAccessKey"
-        - "iam:ListAccessKeys"
-        - "iam:ListUsers"
-      Resource: '*'
-    - Effect: 'Allow'
-      Action:
-        - "ssm:GetParameter"
-      Resource: '*'
+
+  # Uncomment below if serverless to handle IAM
+  # iamRoleStatements:
+  #   - Effect: 'Allow'
+  #     Action:
+  #       - "iam:DeleteAccessKey"
+  #       - "iam:UpdateAccessKey"
+  #       - "iam:ListAccessKeys"
+  #       - "iam:ListUsers"
+  #     Resource: '*'
+  #   - Effect: 'Allow'
+  #     Action:
+  #       - "ssm:GetParameter"
+  #     Resource: '*'
 
 
 functions:
   iam-sleuth:
     handler: sleuth/handler.handler
     memorySize: 256
-    events:
-      - schedule:
-          name: Test_event
-          description: Just a test event
-          rate: rate(60 minutes)
-          enabled: true
+    role: "arn:aws:iam::923914045601:role/serverless_sleuth"
+    # events:
+    #   - schedule:
+    #       name: Test_event
+    #       description: Just a test event
+    #       rate: rate(60 minutes)
+    #       enabled: true
 
 package:
   # python doesn't need node_modules
