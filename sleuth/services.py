@@ -6,6 +6,7 @@ import requests
 
 IAM = boto3.client('iam')
 SSM = boto3.client('ssm')
+SNS = boto3.client('sns')
 
 LOGGER = logging.getLogger('sleuth')
 
@@ -94,11 +95,35 @@ def get_ssm_value(ssm_path):
     return resp['Parameter']['Value']
 
 
+def send_sns_message(topic_arn, payload):
+    """Send SNS message
+    """
+
+    import pudb; pudb.set_trace()
+    payload = {"default": payload}
+    payload = json.dumps(payload)
+
+    topic_arn = "arn:aws:sns:us-west-2:923914045601:slack-events"
+    resp = SNS.publish(
+        TopicArn=topic_arn,
+        MessageStructure='json',
+        Message=payload
+    )
+
+    if 'MessageId' in resp:
+        LOGGER.info('Message sent successfully sent to SNS {}, msg ID'.format(topic_arn, resp['MessageId']))
+    else:
+        LOGGER.error('Message could NOT be sent {}'.format(topic_arn))
+
+
+
+
 ###################
 # Slack
 ###################
 def send_slack_message(payload):
-    webhook = get_ssm_value('/integrations/test_general')
+    webhook = get_ssm_value(' /admin-global/slack_webhook_ustc_integrations')
+    LOGGER.info('Calling webhook: {}'.format(webhook[0:15]))
 
     resp = requests.post(webhook, data=json.dumps(payload),
                          headers={'Content-Type': 'application/json'})
@@ -106,7 +131,7 @@ def send_slack_message(payload):
     if resp.status_code == requests.codes.ok:
         LOGGER.info('Successfully posted to slack')
     else:
-        msg = 'Unsuccessfully posted to slack, response {}, {}'.format(resp.status, resp.code)
+        msg = 'Unsuccessfully posted to slack, response {}, {}'.format(resp.status_code, resp.text)
         LOGGER.error(msg)
 
 
@@ -153,30 +178,30 @@ def prepare_message(users):
 
 
     old_attachment = {
-        'title': 'IAM users with access keys expiring',
-        'color': '#ffff00', #yellow
-        'fields': [
+        "title": "IAM users with access keys expiring",
+        "color": "#ffff00", #yellow
+        "fields": [
             {
-                'title': 'Users',
-                'value': '\n'.join(old_msgs),
+                "title": "Users",
+                "value": "\n".join(old_msgs),
             }
         ]
     }
 
     expired_attachment = {
-        'title': 'IAM users with disabled access keys',
-        'color': '#ff0000', #red
-        'fields': [
+        "title": "IAM users with disabled access keys",
+        "color": "#ff0000", #red
+        "fields": [
             {
-                'title': 'Users',
-                'value': '\n'.join(expired_msgs),
+                "title": "Users",
+                "value": "\n".join(expired_msgs),
             }
         ]
     }
 
     howto_attachment = {
-        'title': 'Access Key Rotation Instructions',
-        'text': 'https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys'
+        "title": "Access Key Rotation Instructions",
+        "text": "https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys"
     }
 
 

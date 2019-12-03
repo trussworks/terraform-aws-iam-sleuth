@@ -1,12 +1,13 @@
 import datetime as dt
 import json
 import logging
+import os
 
 
 from pythonjsonlogger import jsonlogger
 from tabulate import tabulate
 
-from sleuth.services import get_iam_users, disable_key, send_slack_message, prepare_message
+from sleuth.services import get_iam_users, disable_key, send_slack_message, send_sns_message, prepare_message
 
 LOGGER = logging.getLogger('sleuth')
 
@@ -115,9 +116,10 @@ def audit():
                 disable_key(k, u.username)
 
 
-    # lets send slack messages
+    # lets assemble the slack message
     send_to_slack, slack_msg = prepare_message(iam_users)
     if send_to_slack:
-        send_slack_message(slack_msg)
+        # send_slack_message(slack_msg)
+        send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
     else:
         LOGGER.info('Nothing to report')
