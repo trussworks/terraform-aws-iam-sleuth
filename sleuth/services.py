@@ -10,11 +10,6 @@ SNS = boto3.client('sns')
 
 LOGGER = logging.getLogger('sleuth')
 
-# TODO make this load dynamically
-SLACK_USERS = {
-    'lee': 'UP6A26UAE'
-}
-
 ###################
 # AWS
 ###################
@@ -98,15 +93,14 @@ def get_ssm_value(ssm_path):
 def send_sns_message(topic_arn, payload):
     """Send SNS message
     """
+    print(payload)
+    # payload = {"default": payload}
+    # payload = json.dumps(payload)
 
-    import pudb; pudb.set_trace()
-    payload = {"default": payload}
-    payload = json.dumps(payload)
-
+    # TODO make this configurable
     topic_arn = "arn:aws:sns:us-west-2:923914045601:slack-events"
     resp = SNS.publish(
         TopicArn=topic_arn,
-        MessageStructure='json',
         Message=payload
     )
 
@@ -154,8 +148,41 @@ def find_slack_user(username):
         return username
 
 
-def prepare_message(users):
-    """Prepares message for sending via webhook
+def prepare_sns_message(users):
+    """Prepares message for sending via SNS topic (plain text)
+
+    Parameters:
+    users (list): Users with slack and key info attached to user object
+
+    Returns:
+    bool: True if slack send, false if not
+    dict: Message prepared for slack API
+    """
+    msgs = []
+    for u in users:
+        for k in u.keys:
+            if k.audit_state == 'old':
+                # msgs.append('<@{}>\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
+                msgs.append('<@UPML9FJ3S>\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
+
+            if k.audit_state == 'expire':
+                #msgs.append('<@{}>\'s key is disabled.'.format(u.slack_id))
+                msgs.append('<@UPML9FJ3S>\'s key is disabled.'.format(u.slack_id))
+
+
+    msg = 'IAM Slueth bot reporting in:\\n{}\\n How To for Key Rotation https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys'.format("\n".join(msgs))
+
+    send_to_slack = False
+    if len(msgs) > 0:
+        send_to_slack = True
+
+    print(msg)
+    return send_to_slack, msg
+
+def prepare_slack_message(users):
+    """Prepares message for sending via Slack webhook
+
+    Note: Will not work with SNS sending
 
     Parameters:
     users (list): Users with slack and key info attached to user object
@@ -170,10 +197,10 @@ def prepare_message(users):
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                old_msgs.append('{}\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
+                old_msgs.append('<@{}>\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
 
             if k.audit_state == 'expire':
-                expired_msgs.append('{}\'s key is disabled.'.format(u.slack_id))
+                expired_msgs.append('<@{}>\'s key is disabled.'.format(u.slack_id))
 
 
 

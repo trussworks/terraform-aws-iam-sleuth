@@ -7,7 +7,7 @@ import os
 from pythonjsonlogger import jsonlogger
 from tabulate import tabulate
 
-from sleuth.services import get_iam_users, disable_key, send_slack_message, send_sns_message, prepare_message
+from sleuth.services import get_iam_users, disable_key, send_slack_message, send_sns_message, prepare_slack_message, prepare_sns_message
 
 LOGGER = logging.getLogger('sleuth')
 
@@ -115,11 +115,22 @@ def audit():
             if k.audit_state == 'expire':
                 disable_key(k, u.username)
 
+    # lets assemble and send slack msg
+    if 'SNS_TOPIC' in os.environ:
+        LOGGER.info('Detected SNS setting so preparing and sending message via SNS')
+        #send_to_slack, slack_msg = prepare_sns_message(iam_users)
+        send_to_slack, slack_msg = prepare_slack_message(iam_users)
+        if send_to_slack:
+            # send_slack_message(slack_msg)
+            send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
+        else:
+            LOGGER.info('Nothing to report')
+        return
 
+    LOGGER.info('Using direct Slack API')
     # lets assemble the slack message
-    send_to_slack, slack_msg = prepare_message(iam_users)
+    send_to_slack, slack_msg = prepare_slack_message(iam_users)
     if send_to_slack:
-        # send_slack_message(slack_msg)
-        send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
+        send_slack_message(slack_msg)
     else:
         LOGGER.info('Nothing to report')
