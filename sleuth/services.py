@@ -34,6 +34,26 @@ def get_iam_key_info(user):
     return keys
 
 
+def get_user_tag(username):
+    """Fetches User Tags
+
+    A helper function to unpack the API response in a python friendly way
+
+    Parameters:
+    username (str): Username of the user to fetch tags for
+
+    Returns:
+    dict: key val of the tags
+    """
+    resp = IAM.list_user_tags(UserName=username)
+
+    tags = {}
+    for t in resp['Tags']:
+        tags[t['Key']] = t['Value']
+
+    return tags
+
+
 
 def get_iam_users():
     """Fetches IAM users WITH key info
@@ -52,7 +72,12 @@ def get_iam_users():
     users = []
     for resp in iter:
         for u in resp['Users']:
-            user = User(u['UserId'], u['UserName'], find_slack_user(u['UserName']))
+            tags = get_user_tag(u['UserName'])
+            if 'Slack' not in tags:
+                LOGGER.info('IAM User: {} is missing Slack tag!'.format(u['UserName']))
+                # since no slack id, lets fill in the username so at least we know the account
+                tags['Slack'] = u['UserName']
+            user = User(u['UserId'], u['UserName'], tags['Slack'])
             user.keys = get_iam_key_info(user)
             users.append(user)
 
