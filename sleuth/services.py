@@ -152,25 +152,6 @@ def send_slack_message(webhook, payload):
         LOGGER.error(msg)
 
 
-def find_slack_user(username):
-    """Helper func to return a mention if user matches
-
-    If not will return the username so we at least has some identification
-
-    Params:
-    username (str): Username to find slack id
-
-    Returns
-    str: Slack id with the @ call out added IF found, just usenrame if not
-    """
-
-    norm_username = username.lower()
-    if username in SLACK_USERS:
-        return '<@{}>'.format(SLACK_USERS[username])
-    else:
-        return username
-
-
 def prepare_sns_message(users):
     """Prepares message for sending via SNS topic (plain text)
 
