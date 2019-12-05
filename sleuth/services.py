@@ -140,8 +140,7 @@ def send_sns_message(topic_arn, payload):
 ###################
 # Slack
 ###################
-def send_slack_message(payload):
-    webhook = get_ssm_value(' /admin-global/slack_webhook_ustc_integrations')
+def send_slack_message(webhook, payload):
     LOGGER.info('Calling webhook: {}'.format(webhook[0:15]))
 
     resp = requests.post(webhook, data=json.dumps(payload),

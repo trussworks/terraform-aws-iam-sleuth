@@ -115,22 +115,23 @@ def audit():
             if k.audit_state == 'expire':
                 disable_key(k, u.username)
 
+    if 'SNS_TOPIC' not in os.environ and 'SLACK_URL' not in os.environ:
+        LOGGER.warn('No notification settings set, please set SNS_TOPIC or SLACK_URL envar!')
+
     # lets assemble and send slack msg
     if 'SNS_TOPIC' in os.environ:
         LOGGER.info('Detected SNS setting so preparing and sending message via SNS')
-        #send_to_slack, slack_msg = prepare_sns_message(iam_users)
-        send_to_slack, slack_msg = prepare_slack_message(iam_users)
+        send_to_slack, slack_msg = prepare_sns_message(iam_users)
         if send_to_slack:
-            # send_slack_message(slack_msg)
             send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
         else:
             LOGGER.info('Nothing to report')
-        return
 
-    LOGGER.info('Using direct Slack API')
-    # lets assemble the slack message
-    send_to_slack, slack_msg = prepare_slack_message(iam_users)
-    if send_to_slack:
-        send_slack_message(slack_msg)
-    else:
-        LOGGER.info('Nothing to report')
+    if 'SLACK_URL' in os.environ:
+        LOGGER.info('Using direct Slack API')
+        # lets assemble the slack message
+        send_to_slack, slack_msg = prepare_slack_message(iam_users)
+        if send_to_slack:
+            send_slack_message(os.environ['SLACK_URL'], slack_msg)
+        else:
+            LOGGER.info('Nothing to report')
