@@ -39,7 +39,7 @@ formatter = jsonlogger.JsonFormatter(custom_format)
 logHandler.setFormatter(formatter)
 LOGGER.addHandler(logHandler)
 
-from . auditor import audit
+from sleuth.auditor import audit
 
 def handler(event, context):
     """
