@@ -119,14 +119,13 @@ def send_sns_message(topic_arn, payload):
     """Send SNS message
     """
     print(payload)
-    # payload = {"default": payload}
-    # payload = json.dumps(payload)
+    payload = json.dumps(payload)
+    print(payload)
 
-    # TODO make this configurable
-    topic_arn = "arn:aws:sns:us-west-2:923914045601:slack-events"
     resp = SNS.publish(
         TopicArn=topic_arn,
-        Message=payload
+        Message=payload,
+        Subject='IAM Slueth Bot'
     )
 
     if 'MessageId' in resp:
@@ -186,15 +185,13 @@ def prepare_sns_message(users):
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                # msgs.append('<@{}>\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
-                msgs.append('<@UPML9FJ3S>\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
+                msgs.append('<@{}>\'s key expires in {} days.'.format(u.slack_id, k.valid_for))
 
             if k.audit_state == 'expire':
-                #msgs.append('<@{}>\'s key is disabled.'.format(u.slack_id))
-                msgs.append('<@UPML9FJ3S>\'s key is disabled.'.format(u.slack_id))
+                msgs.append('<@{}>\'s key is disabled.'.format(u.slack_id))
 
 
-    msg = 'IAM Slueth bot reporting in:\\n{}\\n How To for Key Rotation https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys'.format("\n".join(msgs))
+    msg = 'AWS IAM Key report:\n\n{}\n\n How to doc for <https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys|key rotation>'.format("\n".join(msgs))
 
     send_to_slack = False
     if len(msgs) > 0:
@@ -258,7 +255,6 @@ def prepare_slack_message(users):
 
     # include master one
     msg = {
-        # "text": "IAM Key Updates",
         "attachments": []
     }
 
