@@ -25,15 +25,20 @@ provider:
 
 functions:
   iam-sleuth:
+    name: iam-sleuth
     handler: sleuth/handler.handler
     memorySize: 256
+    timeout: 600 # set high incase of high IAM account count
     role: "arn:aws:iam::923914045601:role/serverless_sleuth"
-    # events:
-    #   - schedule:
-    #       name: Test_event
-    #       description: Just a test event
-    #       rate: rate(60 minutes)
-    #       enabled: true
+    environment:
+      SNS_TOPIC: arn:aws:sns:us-west-2:923914045601:slack-events
+      #SLACK_URL: <YOUR URL HERE>
+    events:
+      - schedule:
+          name: DailyCheck
+          description: Runs MON-FRI at 18:00 UTC for daily auditing.
+          rate: 'cron(0 18 ? * MON-FRI *)'
+          enabled: true
 
 package:
   # python doesn't need node_modules

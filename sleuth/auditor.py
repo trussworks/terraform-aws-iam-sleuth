@@ -122,16 +122,8 @@ def audit():
     if 'SNS_TOPIC' in os.environ:
         LOGGER.info('Detected SNS setting so preparing and sending message via SNS')
         send_to_slack, slack_msg = prepare_sns_message(iam_users)
-        if send_to_slack:
-            send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
-        else:
-            LOGGER.info('Nothing to report')
 
     if 'SLACK_URL' in os.environ:
         LOGGER.info('Using direct Slack API')
         # lets assemble the slack message
         send_to_slack, slack_msg = prepare_slack_message(iam_users)
-        if send_to_slack:
-            send_slack_message(os.environ['SLACK_URL'], slack_msg)
-        else:
-            LOGGER.info('Nothing to report')
