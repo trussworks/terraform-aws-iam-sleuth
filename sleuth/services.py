@@ -172,7 +172,7 @@ def prepare_sns_message(users):
                 msgs.append('<@{}>\'s key is disabled.'.format(u.slack_id))
 
 
-    msg = 'AWS IAM Key report:\n\n{}\n\n How to doc for <https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys|key rotation>. Once key is expired will require team Infra involvement to reset key and MFA'.format("\n".join(msgs))
+    msg = 'AWS IAM Key report:\n\n{}\n\n How to doc for <https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys|key rotation>. TLDR: \n ```cd transcom-ppp\ngit pull && rotate-aws-access-key``` \n\nOnce key is expired will require team Infra involvement to reset key and MFA'.format("\n".join(msgs))
 
     send_to_slack = False
     if len(msgs) > 0:
