@@ -69,8 +69,9 @@ def format_slack_id(slackid):
         LOGGER.warning('Slack ID is None, which it should not be')
         return ''
 
-    if 'subteam' in slackid:
-        return '<!subteam^{}>'.format(slackid)
+    if 'subteam' in slackid and '-' in slackid:
+        # format and replace "-" with "^" since IAM rules doesn't allow "^"
+        return '<!{}>'.format(slackid).replace('-', '^')
     elif slackid[0] == 'U':
         return '<@{}>'.format(slackid)
     else:

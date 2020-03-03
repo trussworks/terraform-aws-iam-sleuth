@@ -27,4 +27,10 @@ class TestFormatSlackID():
 
     def test_team_id(self):
         """Test a simple team id as input"""
-        pass
+        resp = format_slack_id('subteam-T12345')
+        assert resp == '<!subteam^T12345>'
+
+    def test_team_id_missing_hyphen(self):
+        """Test a team id missing a '-' as input"""
+        resp = format_slack_id('subteamT12345')
+        assert resp == 'subteamT12345'
