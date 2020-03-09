@@ -41,12 +41,15 @@ LOGGER.addHandler(logHandler)
 
 from sleuth.auditor import audit
 
+VERSION = '0.8.0'
+
 def handler(event, context):
     """
     Incoming lambda handler
     """
 
     LOGGER.info('handler fired')
+    LOGGER.info('Running aws-sleuth {}'.format(VERSION))
 
     audit()
 
