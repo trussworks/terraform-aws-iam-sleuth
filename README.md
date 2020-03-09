@@ -2,6 +2,8 @@
 
 
 
+[Changelog](./changelog.md)
+
 ## What is this for?
 
 This is a tool that will help in auditing the AWS key age and help notify users via Slack or SNS topic that their AWS key may be coming out of compliance.

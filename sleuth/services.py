@@ -76,7 +76,7 @@ def format_slack_id(slackid, display_name=None):
         if display_name is None:
             return '(see log) <!{}>'.format(slackid).replace('-', '^')
         else:
-            return '{} (<!{}>)'.format(display_name, slackid).replace('-', '^')
+            return '{} (<!{}>)'.format(display_name, slackid.replace('-', '^'))
     elif slackid[0] == 'U':
         return '<@{}>'.format(slackid)
     else:
