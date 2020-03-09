@@ -54,12 +54,14 @@ def get_user_tag(username):
     return tags
 
 
-def format_slack_id(slackid):
+def format_slack_id(slackid, display_name=None):
     """Helper function that formats the slack message to mention a user or group id such as Infra etc
 
     Parameters:
     slackid (str): User unique id, starts with a 'U', or group unique id starts with a 'subteam'
                    If slackid isn't recognized as user or team ID will return slackid itself as last ditch effort
+    display_name (str): Display name to use while slackid is put into '()' so slack still pings. Only used
+                        when mentioning teams/groups since the slackid calls out team name instead of IAM account.
 
     Returns:
     str: The user or team id in a slack mention, example: <@U12345> or <!subteam^T1234>
@@ -67,11 +69,14 @@ def format_slack_id(slackid):
 
     if slackid is None or len(slackid) == 0:
         LOGGER.warning('Slack ID is None, which it should not be')
-        return ''
+        return 'UNKNOWN'
 
     if 'subteam' in slackid and '-' in slackid:
         # format and replace "-" with "^" since IAM rules doesn't allow "^"
-        return '<!{}>'.format(slackid).replace('-', '^')
+        if display_name is None:
+            return '(see log) <!{}>'.format(slackid).replace('-', '^')
+        else:
+            return '{} (<!{}>)'.format(display_name, slackid.replace('-', '^'))
     elif slackid[0] == 'U':
         return '<@{}>'.format(slackid)
     else:
@@ -191,10 +196,10 @@ def prepare_sns_message(users):
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                msgs.append('{}\'s key expires in {} days.'.format(format_slack_id(u.slack_id), k.valid_for))
+                msgs.append('{}\'s key expires in {} days.'.format(format_slack_id(u.slack_id, u.username), k.valid_for))
 
             if k.audit_state == 'expire':
-                msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id)))
+                msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id, u.username)))
 
 
     msg = 'AWS IAM Key report:\n\n{}\n\n How to doc for <https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys|key rotation>. TLDR: \n ```cd transcom-ppp\ngit pull && rotate-aws-access-key``` \n\nOnce key is expired will require team Infra involvement to reset key and MFA'.format("\n".join(msgs))
@@ -224,11 +229,11 @@ def prepare_slack_message(users):
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                old_msgs.append('{}\'s key expires in {} days.'.format(format_slack_id(u.slack_id),
+                old_msgs.append('{}\'s key expires in {} days.'.format(format_slack_id(u.slack_id, u.username),
                                                                        k.valid_for))
 
             if k.audit_state == 'expire':
-                expired_msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id)))
+                expired_msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id, u.username)))
 
 
 
