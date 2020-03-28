@@ -2,11 +2,6 @@ import json
 import logging
 import logging.config
 
-try:
-  import unzip_requirements
-except ImportError:
-  pass
-
 from pythonjsonlogger import jsonlogger
 
 
@@ -41,7 +36,7 @@ LOGGER.addHandler(logHandler)
 
 from sleuth.auditor import audit
 
-VERSION = '0.8.0'
+VERSION = '0.9.0'
 
 def handler(event, context):
     """

@@ -2,8 +2,19 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.9.0] - 2020-03-28
 
-## [0.8.0] - 2017-06-20
+### Added
+- TF managed code to assist in deployment
+
+### Changed
+- Deployment from Serverless to fully managed TF module
+- Moved sleuth to lower level module and update handler, tests etc
+
+### Removed
+- Deployment via Serverless framework
+
+## [0.8.0] - 2019-06-20
 
 ### Added
 
