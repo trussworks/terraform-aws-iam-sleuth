@@ -44,7 +44,7 @@ $ git clone https://github.com/trussworks/aws-iam-sleuth/
 
 Sleuth relies on IAM Tags to know the Slack account/group ID to mention when assembling the notification. Specifically `Name` and `Slack` tags. A sample of a TF IAM user is below
 
-```json
+```
 resource "aws_iam_user" "tfunke" {
   name = "tfunke"
 
@@ -65,7 +65,7 @@ If the information isn't specified an error will be thrown in the logs and the p
 
 Now all the dependencies are ready and the environment is prepped for Sleuth usage we can now deploy the lambda.
 
-```json
+```
 module "iam_sleuth" {
   source = "../to/module/aws-api-key-sleuth"
   sns_topic_arn = data.aws_sns_topic.slack_events.arn
