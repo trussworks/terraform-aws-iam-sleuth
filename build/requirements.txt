@@ -1,6 +1,0 @@
-# prefer to ship deps than let AWS blindly update for me
-boto3==1.10.32
-botocore==1.13.32
-python-json-logger==0.1.11
-requests==2.22.0
-tabulate==0.8.5
