@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Serveral git precommits (markdown, terraform, terraformd-docs etc)
+
 ## [0.9.0] - 2020-03-28
 
 ### Added
