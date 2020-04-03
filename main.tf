@@ -12,13 +12,13 @@ data "aws_iam_account_alias" "current" {
 module "iam_sleuth" {
   source = "../terraform_aws_lambda_python"
 
-  description = "Audits IAM Access keys for replacement"
-  function_name = "iam_sleuth"
-  handler_name = "handler.handler"
-  role_arn =  aws_iam_role.iam_sleuth.arn
+  description      = "Audits IAM Access keys for replacement"
+  function_name    = "iam_sleuth"
+  handler_name     = "handler.handler"
+  role_arn         = aws_iam_role.iam_sleuth.arn
   source_code_path = "${path.module}/sleuth/"
-  runtime = "python3.8"
-  timeout = "500" #seconds
+  runtime          = "python3.8"
+  timeout          = "500" #seconds
   environment = {
     SNS_TOPIC = var.sns_topic_arn
   }
@@ -38,16 +38,16 @@ resource "aws_cloudwatch_event_rule" "lambda_rule_trigger" {
 
 resource "aws_cloudwatch_event_target" "sleuth_lambda_target" {
   target_id = "sleuth_lambda_target" // Worked for me after I added `target_id`
-  rule = aws_cloudwatch_event_rule.lambda_rule_trigger.name
-  arn = module.iam_sleuth.arn
+  rule      = aws_cloudwatch_event_rule.lambda_rule_trigger.name
+  arn       = module.iam_sleuth.arn
 }
 
 resource "aws_lambda_permission" "sleuth_lambda_permission" {
-  statement_id = "AllowExecutionFromCloudWatch"
-  action = "lambda:InvokeFunction"
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
   function_name = module.iam_sleuth.arn
-  principal = "events.amazonaws.com"
-  source_arn = aws_cloudwatch_event_rule.lambda_rule_trigger.arn
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_rule_trigger.arn
 }
 
 
