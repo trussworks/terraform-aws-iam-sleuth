@@ -69,7 +69,7 @@ class User():
         self.username = username
         self.slack_id = slack_id
 
-    def audit(self, rotate=80, expire=90):
+    def audit(self, rotate=25, expire=27):
         for k in self.keys:
             k.audit(rotate, expire)
 
