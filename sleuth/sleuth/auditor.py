@@ -69,7 +69,7 @@ class User():
         self.username = username
         self.slack_id = slack_id
 
-    def audit(self, rotate=63, expire=65):
+    def audit(self, rotate=80, expire=90):
         for k in self.keys:
             k.audit(rotate, expire)
 
@@ -92,10 +92,10 @@ def print_key_report(users):
                 u.slack_id,
                 k.key_id,
                 k.audit_state,
-                k.valid_for
+                k.age
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Expires in Days']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'AGE']))
 
 
 def audit():
@@ -104,7 +104,7 @@ def audit():
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
-        u.audit(80, 90)
+        u.audit(10, 90)
 
     #mainly for debugging
     print_key_report(iam_users)
