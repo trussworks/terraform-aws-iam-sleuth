@@ -23,7 +23,6 @@ module "iam_sleuth" {
     SNS_TOPIC      = var.sns_topic_arn
     EXPIRATION_AGE = var.expiration_age
     WARNING_AGE    = var.warning_age
-
   }
 }
 
