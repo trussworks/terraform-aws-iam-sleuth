@@ -92,10 +92,10 @@ def print_key_report(users):
                 u.slack_id,
                 k.key_id,
                 k.audit_state,
-                k.age
+                k.valid_for
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'AGE']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Expires in Days']))
 
 
 def audit():
@@ -104,7 +104,7 @@ def audit():
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
-        u.audit(10, 90)
+        u.audit(80, 90)
 
     #mainly for debugging
     print_key_report(iam_users)
