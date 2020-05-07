@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  python: circleci/python@0.3.0
+
 jobs:
   validate:
     docker:
@@ -16,9 +19,19 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+    build-and-test:
+      executor: python/default
+      steps:
+        - checkout
+        - python/load-cache
+        - python/install-deps
+        - python/save-cache
+        - python/test:
+            pytest: true
 
 workflows:
   version: 2
   validate:
     jobs:
       - validate
+      - build-and-test
