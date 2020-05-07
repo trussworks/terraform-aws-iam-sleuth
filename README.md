@@ -6,7 +6,9 @@
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
 
 ## Providers
 
@@ -18,10 +20,8 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| days\_until\_expire | The age at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
-| days\_until\_warning | The age at which the keys will be considered old and the associated user will start to receive warnings. | `string` | `80` | no |
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
+| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | n/a | yes |
 
 ## Outputs
 
