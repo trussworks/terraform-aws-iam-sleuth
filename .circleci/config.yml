@@ -23,9 +23,12 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
+      - python/load-cache:
+          dependency-file: ./sleuth/requirements.txt
+      - python/install-deps:
+          dependency-file: ./sleuth/requirements.txt
+      - python/save-cache:
+          dependency-file: ./sleuth/requirements.txt
       - python/test:
           pytest: true
 

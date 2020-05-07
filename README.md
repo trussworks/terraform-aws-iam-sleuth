@@ -110,6 +110,6 @@ A user failed to cycle their AWS key. Sleuth disabled the out of compliant key a
 Install dependencies:
 
 ```sh
-brew install circleci pre-commit terraform
+brew install circleci pre-commit terraform python
 pre-commit install --install-hooks
 ```
