@@ -4,18 +4,19 @@
 
 <!-- markdownlint-disable MD013 MD033  -->
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 ## Providers
 
 | Name | Version |
-|------|---------|
-| aws | n/a |
+| ---- | ------- |
+| aws  | n/a     |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
-| schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | n/a | yes |
+| Name          | Description                                                       | Type     | Default                      | Required |
+| ------------- | ----------------------------------------------------------------- | -------- | ---------------------------- | :------: |
+| schedule      | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` |    no    |
+| sns_topic_arn | SNS topic to send messages to, to be routed to slack-notify       | `string` | n/a                          |   yes    |
 
 ## Outputs
 
@@ -36,27 +37,6 @@ Sleuth runs periodically, normally once a day in the middle of business hours. S
 - If key age is at or over threshold will disable Access Key along with a final notice
 
 Notifications can be sent directly to Slack using a V1 token or through SNS Topic.
-
-## Usage
-
-### Setup
-
-This tool depends on an external non-published TF module. As of time of writing this is a manual process for now.
-
-```bash
-cd WORK_DIR
-git clone https://github.com/ruzin/terraform_aws_lambda_python.git
-cd terraform_aws_lambda_python
-git remote add retentionscience git@github.com:retentionscience/terraform_aws_lambda_python.git
-git checkout retentionscience/master
-```
-
-Now pull down the Sleuth private TF module
-
-```bash
-cd WORK_DIR
-git clone https://github.com/trussworks/aws-iam-sleuth/
-```
 
 ### Configure Environment
 
@@ -100,6 +80,6 @@ For IAM accounts that are used by bots such as Jenkins or CircleCI Sleuth can pi
 
 <img src="docs/media/readme/group.png" style="zoom:38%;" />
 
-A user failed to cycle their AWS key.  Sleuth disabled the out of compliant key and posts a single notification to the user. This is the last notification the user will receive.
+A user failed to cycle their AWS key. Sleuth disabled the out of compliant key and posts a single notification to the user. This is the last notification the user will receive.
 
 <img src="docs/media/readme/disable.png" style="zoom:59%;" />
