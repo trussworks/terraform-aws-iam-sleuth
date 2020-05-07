@@ -4,6 +4,7 @@
 
 <!-- markdownlint-disable MD013 MD033  -->
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 ## Requirements
 
 No requirements.
@@ -11,15 +12,15 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
-| aws | n/a |
+| ---- | ------- |
+| aws  | n/a     |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | n/a | yes |
+| Name          | Description                                                       | Type     | Default                      | Required |
+| ------------- | ----------------------------------------------------------------- | -------- | ---------------------------- | :------: |
+| schedule      | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` |    no    |
+| sns_topic_arn | SNS topic to send messages to, to be routed to slack-notify       | `string` | n/a                          |   yes    |
 
 ## Outputs
 
@@ -113,6 +114,24 @@ A user failed to cycle their AWS key. Sleuth disabled the out of compliant key a
 Install dependencies:
 
 ```sh
-brew install circleci pre-commit terraform python
+brew install circleci pre-commit terraform python direnv
 pre-commit install --install-hooks
+```
+
+Now for downloading the python dependencies:
+
+```sh
+# skip if you already have virtualenv on your machine
+python3 -m pip install --user virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r ./sleuth/requirements.txt
+```
+
+### Testing
+
+To test the app locally:
+
+```sh
+pytest
 ```
