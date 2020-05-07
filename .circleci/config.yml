@@ -23,7 +23,7 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - command: pip install --upgrade pip
+      - run: pip install --upgrade pip
       - python/load-cache:
           dependency-file: ./sleuth/requirements.txt
       - python/install-deps:
