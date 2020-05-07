@@ -19,7 +19,7 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-  build-and-test:
+  python-test:
     executor: python/default
     steps:
       - checkout
@@ -29,15 +29,17 @@ jobs:
           dependency-file: ./sleuth/requirements.txt
       - python/save-cache:
           dependency-file: ./sleuth/requirements.txt
-      - run:
-          command: |
-            # pytest would be a dep in requirements.txt
-            pytest ./sleuth/tests
-          name: Test
+      - python/test:
+          pytest: true
+    #   - run:
+    #       command: |
+    #         # pytest would be a dep in requirements.txt
+    #         pytest ./sleuth/tests
+    #       name: Test
 
 workflows:
   version: 2
   validate:
     jobs:
       - validate
-      - build-and-test
+      - python-test
