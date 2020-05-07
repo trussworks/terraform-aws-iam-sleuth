@@ -19,15 +19,15 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-    build-and-test:
-      executor: python/default
-      steps:
-        - checkout
-        - python/load-cache
-        - python/install-deps
-        - python/save-cache
-        - python/test:
-            pytest: true
+  build-and-test:
+    executor: python/default
+    steps:
+      - checkout
+      - python/load-cache
+      - python/install-deps
+      - python/save-cache
+      - python/test:
+          pytest: true
 
 workflows:
   version: 2
