@@ -38,27 +38,6 @@ Sleuth runs periodically, normally once a day in the middle of business hours. S
 
 Notifications can be sent directly to Slack using a V1 token or through SNS Topic.
 
-## Usage
-
-### Setup
-
-This tool depends on an external non-published TF module. As of time of writing this is a manual process for now.
-
-```bash
-cd WORK_DIR
-git clone https://github.com/ruzin/terraform_aws_lambda_python.git
-cd terraform_aws_lambda_python
-git remote add retentionscience git@github.com:retentionscience/terraform_aws_lambda_python.git
-git checkout retentionscience/master
-```
-
-Now pull down the Sleuth private TF module
-
-```bash
-cd WORK_DIR
-git clone https://github.com/trussworks/aws-iam-sleuth/
-```
-
 ### Configure Environment
 
 Sleuth relies on IAM Tags to know the Slack account/group ID to mention when assembling the notification. Specifically `Name` and `Slack` tags. A sample of a TF IAM user is below

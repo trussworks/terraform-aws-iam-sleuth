@@ -10,7 +10,7 @@ data "aws_iam_account_alias" "current" {
 # Lambda
 #
 module "iam_sleuth" {
-  source = "../terraform_aws_lambda_python"
+  source = "git@github.com:retentionscience/terraform_aws_lambda_python.git"
 
   description      = "Audits IAM Access keys for replacement"
   function_name    = "iam_sleuth"
