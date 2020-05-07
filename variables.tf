@@ -8,8 +8,3 @@ variable "sns_topic_arn" {
   type        = string
   description = "SNS topic to send messages to, to be routed to slack-notify"
 }
-
-variable "slack_webhook" {
-  type        = string
-  description = "Slack Webhook URL to send messages"
-}

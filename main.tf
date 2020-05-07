@@ -21,7 +21,6 @@ module "iam_sleuth" {
   timeout          = "500" #seconds
   environment = {
     SNS_TOPIC = var.sns_topic_arn
-    SLACK_URL = var.slack_webhook
   }
 }
 
