@@ -1,9 +1,12 @@
 version: 2.1
 
+orbs:
+  python: circleci/python@0.3.0
+
 jobs:
   validate:
     docker:
-      - image: trussworks/circleci-docker-primary:e66fbea875bcb788b29b1b5f59142e8231961ec5
+      - image: trussworks/circleci-docker-primary:ffbfa3d3e13660c63ec50154a0323190825d1fb0
     steps:
       - checkout
       - restore_cache:
@@ -16,9 +19,22 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+  python-test:
+    executor: python/default
+    steps:
+      - checkout
+      - python/load-cache:
+          dependency-file: ./sleuth/requirements.txt
+      - python/install-deps:
+          dependency-file: ./sleuth/requirements.txt
+      - python/save-cache:
+          dependency-file: ./sleuth/requirements.txt
+      - python/test:
+          pytest: true
 
 workflows:
   version: 2
   validate:
     jobs:
       - validate
+      - python-test
