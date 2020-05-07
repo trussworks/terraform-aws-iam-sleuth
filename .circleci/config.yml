@@ -29,8 +29,11 @@ jobs:
           dependency-file: ./sleuth/requirements.txt
       - python/save-cache:
           dependency-file: ./sleuth/requirements.txt
-      - python/test:
-          pytest: true
+      - run:
+          command: |
+            # pytest would be a dep in requirements.txt
+            pytest ./sleuth/tests
+          name: Test
 
 workflows:
   version: 2

@@ -5,3 +5,4 @@ python-json-logger==0.1.11
 requests==2.22.0
 tabulate==0.8.5
 pytest==3.3.2
+freezegun==0.3.15
