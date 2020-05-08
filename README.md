@@ -4,24 +4,25 @@
 
 <!-- markdownlint-disable MD013 MD033  -->
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version |
+| --------- | ------- |
 | terraform | >= 0.12 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| aws | n/a |
+| ---- | ------- |
+| aws  | n/a     |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
+| Name          | Description                                                       | Type     | Default                      | Required |
+| ------------- | ----------------------------------------------------------------- | -------- | ---------------------------- | :------: |
+| schedule      | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` |    no    |
+| sns_topic_arn | SNS topic to send messages to, to be routed to slack-notify       | `string` | `""`                         |    no    |
 
 ## Outputs
 
@@ -110,8 +111,20 @@ pip install -r ./sleuth/requirements.txt
 
 ### Testing
 
-To test the app locally:
+To test the Python app:
 
 ```sh
 pytest
+```
+
+To test the module itself:
+
+```sh
+make test
+```
+
+or
+
+```sh
+AWS_VAULT_KEYCHAIN_NAME=<NAME> aws-vault exec <PROFILE> -- make test
 ```
