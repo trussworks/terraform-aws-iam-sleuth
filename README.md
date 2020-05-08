@@ -6,7 +6,9 @@
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
 
 ## Providers
 
@@ -94,6 +96,36 @@ A user failed to cycle their AWS key. Sleuth disabled the out of compliant key a
 Install dependencies:
 
 ```sh
-brew install circleci pre-commit terraform
+brew install circleci pre-commit terraform python direnv
 pre-commit install --install-hooks
+```
+
+Now for downloading the python dependencies:
+
+```sh
+# skip if you already have virtualenv on your machine
+python3 -m pip install --user virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r ./sleuth/requirements.txt
+```
+
+### Testing
+
+To test the Python app:
+
+```sh
+pytest
+```
+
+To test the module itself:
+
+```sh
+make test
+```
+
+or
+
+```sh
+AWS_VAULT_KEYCHAIN_NAME=<NAME> aws-vault exec <PROFILE> -- make test
 ```
