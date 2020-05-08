@@ -21,7 +21,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | n/a | yes |
+| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
 
 ## Outputs
 

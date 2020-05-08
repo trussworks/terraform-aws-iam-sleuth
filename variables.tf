@@ -7,4 +7,5 @@ variable "schedule" {
 variable "sns_topic_arn" {
   type        = string
   description = "SNS topic to send messages to, to be routed to slack-notify"
+  default     = ""
 }
