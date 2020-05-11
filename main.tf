@@ -20,7 +20,8 @@ module "iam_sleuth" {
   runtime          = "python3.8"
   timeout          = "500" #seconds
   environment = {
-    SNS_TOPIC = var.sns_topic_arn
+    SNS_TOPIC          = var.sns_topic_arn
+    ENABLE_AUTO_EXPIRE = var.enable_auto_expire
   }
 }
 

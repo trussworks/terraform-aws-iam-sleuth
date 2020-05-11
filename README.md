@@ -20,6 +20,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| allow\_auto\_expire | A switch to turn off/on the lambda's ability to auto expire keys | `bool` | `true` | no |
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
 | sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
 

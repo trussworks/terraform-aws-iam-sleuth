@@ -135,7 +135,7 @@ def get_ssm_value(ssm_path):
     """Get SSM Parameter value
 
     Parameters:
-    ssm_path (str): Path of the parametere to return
+    ssm_path (str): Path of the parameter to return
 
     Returns:
     str: Value of parameter

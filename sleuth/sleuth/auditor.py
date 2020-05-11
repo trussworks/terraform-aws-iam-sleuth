@@ -110,10 +110,12 @@ def audit():
     print_key_report(iam_users)
 
     # lets disabled expired keys and build list of old and expired for slack
-    for u in iam_users:
-        for k in u.keys:
-            if k.audit_state == 'expire':
-                disable_key(k, u.username)
+
+    if bool(os.environ['ENABLE_AUTO_EXPIRE']):
+        for u in iam_users:
+            for k in u.keys:
+                if k.audit_state == 'expire':
+                    disable_key(k, u.username)
 
     if 'SNS_TOPIC' not in os.environ and 'SLACK_URL' not in os.environ:
         LOGGER.warn('No notification settings set, please set SNS_TOPIC or SLACK_URL envar!')

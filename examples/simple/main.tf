@@ -3,6 +3,7 @@ resource "aws_sns_topic" "slack_events" {
 }
 
 module iam_sleuth {
-  source        = "../.."
-  sns_topic_arn = aws_sns_topic.slack_events.arn
+  source             = "../.."
+  sns_topic_arn      = aws_sns_topic.slack_events.arn
+  enable_auto_expire = false
 }
