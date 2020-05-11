@@ -33,8 +33,18 @@ class TestKey():
 
         assert k.audit_state == 'expire'
 
-    def test_inactive(self):
+    def test_no_disable(self, monkeypatch):
+        """Key is disabled AWS status of Inactive, but disabling is turned off so key remains audit state expire"""
+        monkeypatch.setenv('ENABLE_AUTO_EXPIRE', 'false')
+        created = datetime.datetime(2019, 1, 1, tzinfo=datetime.timezone.utc)
+        k = Key('username', 'keyid', 'Inactive', created)
+
+        k.audit(10, 11)
+        assert k.audit_state == 'expire'
+
+    def test_inactive(self, monkeypatch):
         """Key is disabled AWS status of Inactive, key marked is disabled"""
+        monkeypatch.setenv('ENABLE_AUTO_EXPIRE', 'true')
         created = datetime.datetime(2019, 1, 1, tzinfo=datetime.timezone.utc)
         k = Key('username', 'keyid', 'Inactive', created)
 

@@ -54,7 +54,7 @@ class Key():
             self.audit_state = 'old'
         if self.age >= expire_age:
             self.audit_state = 'expire'
-        if self.status == 'Inactive':
+        if self.status == 'Inactive' and os.environ['ENABLE_AUTO_EXPIRE'] == 'true':
             self.audit_state = 'disabled'
 
 
@@ -92,10 +92,10 @@ def print_key_report(users):
                 u.slack_id,
                 k.key_id,
                 k.audit_state,
-                k.valid_for
+                k.age
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Expires in Days']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Age in Days']))
 
 
 def audit():
@@ -109,10 +109,9 @@ def audit():
 
     #mainly for debugging
     print_key_report(iam_users)
-
+    print(os.environ['ENABLE_AUTO_EXPIRE'])
     # lets disabled expired keys and build list of old and expired for slack
-
-    if bool(os.environ['ENABLE_AUTO_EXPIRE']):
+    if os.environ['ENABLE_AUTO_EXPIRE'] == 'true':
         for u in iam_users:
             for k in u.keys:
                 if k.audit_state == 'expire':
