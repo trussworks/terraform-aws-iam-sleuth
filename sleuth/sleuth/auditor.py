@@ -109,7 +109,7 @@ def audit():
 
     #mainly for debugging
     print_key_report(iam_users)
-    print(os.environ['ENABLE_AUTO_EXPIRE'])
+
     # lets disabled expired keys and build list of old and expired for slack
     if os.environ['ENABLE_AUTO_EXPIRE'] == 'true':
         for u in iam_users:
