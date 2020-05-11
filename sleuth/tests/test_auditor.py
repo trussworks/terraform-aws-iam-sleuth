@@ -2,7 +2,7 @@ from freezegun import freeze_time
 
 import datetime
 import pytest
-import os
+
 from sleuth.auditor import Key
 
 
