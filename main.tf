@@ -22,6 +22,8 @@ module "iam_sleuth" {
   environment = {
     SNS_TOPIC          = var.sns_topic_arn
     ENABLE_AUTO_EXPIRE = var.enable_auto_expire
+    EXPIRATION_AGE     = var.expiration_age
+    WARNING_AGE        = var.warning_age
   }
 }
 

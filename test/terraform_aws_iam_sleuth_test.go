@@ -16,7 +16,6 @@ func TestTerraformAwsIamSleuthWithSnsTopic(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
 		TerraformDir: tempTestFolder,
-
 		// Environment variables to set when running Terraform
 		EnvVars: map[string]string{
 			"AWS_DEFAULT_REGION": awsRegion,
@@ -25,5 +24,4 @@ func TestTerraformAwsIamSleuthWithSnsTopic(t *testing.T) {
 
 	defer terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApply(t, terraformOptions)
-
 }

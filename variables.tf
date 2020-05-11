@@ -15,3 +15,15 @@ variable "allow_auto_expire" {
   description = "A switch to turn off/on the lambda's ability to auto expire keys"
   default     = true
 }
+
+variable "expiration_age" {
+  type        = number
+  description = "The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on."
+  default     = 90
+}
+
+variable "warning_age" {
+  type        = string
+  description = "The age (in days) at which the keys will be considered old and the associated user will start to receive warnings."
+  default     = 80
+}
