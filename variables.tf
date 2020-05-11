@@ -10,7 +10,7 @@ variable "sns_topic_arn" {
   default     = ""
 }
 
-variable "allow_auto_expire" {
+variable "enable_auto_expire" {
   type        = bool
   description = "A switch to turn off/on the lambda's ability to auto expire keys"
   default     = true
