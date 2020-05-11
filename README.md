@@ -20,8 +20,10 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
 | sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
+| warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings. | `string` | `80` | no |
 
 ## Outputs
 

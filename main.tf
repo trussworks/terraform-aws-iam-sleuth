@@ -20,7 +20,9 @@ module "iam_sleuth" {
   runtime          = "python3.8"
   timeout          = "500" #seconds
   environment = {
-    SNS_TOPIC = var.sns_topic_arn
+    SNS_TOPIC      = var.sns_topic_arn
+    EXPIRATION_AGE = var.expiration_age
+    WARNING_AGE    = var.warning_age
   }
 }
 
