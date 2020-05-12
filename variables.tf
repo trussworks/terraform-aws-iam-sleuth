@@ -24,6 +24,21 @@ variable "expiration_age" {
 
 variable "warning_age" {
   type        = number
-  description = "The age (in days) at which the keys will be considered old and the associated user will start to receive warnings."
+  description = "The age (in days) at which the keys will be considered old and the associated user will start to receive warnings"
   default     = 80
+}
+
+variable "sns_message" {
+  type        = string
+  description = "The message that will be sent through the SNS topic"
+}
+
+variable "slack_message_title" {
+  type        = string
+  description = "The title of the message sent to Slack directly"
+}
+
+variable "slack_message_text" {
+  type        = string
+  description = "The content of the message sent to Slack directly"
 }

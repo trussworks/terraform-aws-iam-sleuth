@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import boto3
 import requests
@@ -155,7 +156,7 @@ def send_sns_message(topic_arn, payload):
     resp = SNS.publish(
         TopicArn=topic_arn,
         Message=payload,
-        Subject='IAM Slueth Bot'
+        Subject='IAM Sleuth Bot'
     )
 
     if 'MessageId' in resp:
@@ -201,8 +202,7 @@ def prepare_sns_message(users):
             if k.audit_state == 'expire':
                 msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id, u.username)))
 
-
-    msg = 'AWS IAM Key report:\n\n{}\n\n How to doc for <https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys|key rotation>. TLDR: \n ```cd transcom-ppp\ngit pull && rotate-aws-access-key``` \n\nOnce key is expired will require team Infra involvement to reset key and MFA'.format("\n".join(msgs))
+    msg = 'AWS IAM Key report:\n\n{}\n\n{}'.format("\n".join(msgs), os.environ['SNS_MESSAGE'])
 
     send_to_slack = False
     if len(msgs) > 0:
@@ -259,9 +259,9 @@ def prepare_slack_message(users):
         ]
     }
 
-    howto_attachment = {
-        "title": "Access Key Rotation Instructions",
-        "text": "https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys"
+    main_attachment = {
+        "title": os.environ['SLACK_MESSAGE_TITLE'],
+        "text": os.environ['SLACK_MESSAGE_TEXT']
     }
 
 
@@ -280,5 +280,5 @@ def prepare_slack_message(users):
         msg['attachments'].append(expired_attachment)
         send_to_slack = True
 
-    msg['attachments'].append(howto_attachment)
+    msg['attachments'].append(main_attachment)
     return send_to_slack, msg
