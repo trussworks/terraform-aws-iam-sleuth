@@ -23,7 +23,7 @@ variable "expiration_age" {
 }
 
 variable "warning_age" {
-  type        = string
+  type        = number
   description = "The age (in days) at which the keys will be considered old and the associated user will start to receive warnings."
   default     = 80
 }
