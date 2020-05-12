@@ -3,8 +3,19 @@ from freezegun import freeze_time
 import datetime
 import pytest
 
-from sleuth.services import format_slack_id
+from sleuth.services import format_slack_id, prepare_sns_message, prepare_slack_message
+from sleuth.auditor import Key, User
 
+created = datetime.datetime(2019, 1, 1, tzinfo=datetime.timezone.utc)
+user1 = User('user1', 'slackuser1', 'U12345')
+user2 = User('user1', 'slackuser1', 'U67890')
+key1 = Key('user1', 'asdfksakfa', 'Active', created)
+key1.audit_state = 'old'
+key2 = Key('user2', 'ldasfkk', 'Active', created)
+key2.audit_state = 'expire'
+user1.keys = [key1]
+user2.keys = [key2]
+users = [user1, user2]
 
 class TestFormatSlackID():
     def test_empty_input(self):
@@ -17,7 +28,7 @@ class TestFormatSlackID():
         resp = format_slack_id('')
         assert resp == 'UNKNOWN'
 
-    def test_unrecongized_input(self):
+    def test_unrecognized_input(self):
         """Test unrecognized input"""
         resp = format_slack_id('BLAH')
         assert resp == 'BLAH'
@@ -41,3 +52,24 @@ class TestFormatSlackID():
         """Test a team id with display name"""
         resp = format_slack_id('subteam-T12345', 'Joe123')
         assert resp == 'Joe123 (<!subteam^T12345>)'
+
+    def test_sns_message_customization(self, monkeypatch):
+        """Test that the sns message can be customized"""
+        custom_msg = 'This is the SNS message\nboop boop'
+        monkeypatch.setenv('SNS_MESSAGE', custom_msg)
+
+        send_to_slack, msg = prepare_sns_message(users)
+        assert custom_msg in msg
+
+    def test_slack_message_customization(self, monkeypatch):
+        """Test that the slack message can be customized"""
+        custom_msg_title = 'SLACK TITLE'
+        custom_msg = 'Slack content'
+        monkeypatch.setenv('SLACK_MESSAGE_TITLE', custom_msg_title)
+        monkeypatch.setenv('SLACK_MESSAGE_TEXT', custom_msg)
+
+        send_to_slack, msg = prepare_slack_message(users)
+        assert len(msg['attachments']) == 3
+        last_attachment = msg['attachments'][2]
+        assert last_attachment['title'] == custom_msg_title
+        assert last_attachment['text'] == custom_msg

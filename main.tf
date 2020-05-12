@@ -27,11 +27,14 @@ module "iam_sleuth" {
   runtime          = "python3.8"
   timeout          = "500" #seconds
   environment = {
-    SNS_TOPIC          = var.sns_topic_arn
-    ENABLE_AUTO_EXPIRE = var.enable_auto_expire
-    EXPIRATION_AGE     = var.expiration_age
-    WARNING_AGE        = var.warning_age
-    SLACK_URL          = data.aws_ssm_parameter.iam_sleuth_slack_url
+    SLACK_URL           = data.aws_ssm_parameter.iam_sleuth_slack_url
+    SNS_TOPIC           = var.sns_topic_arn
+    ENABLE_AUTO_EXPIRE  = var.enable_auto_expire
+    EXPIRATION_AGE      = var.expiration_age
+    WARNING_AGE         = var.warning_age
+    SNS_MESSAGE         = var.sns_message
+    SLACK_MESSAGE_TITLE = var.slack_message_title
+    SLACK_MESSAGE_TXT   = var.slack_message_text
   }
 }
 
