@@ -12,7 +12,7 @@ variable "sns_topic_arn" {
 
 variable "enable_auto_expire" {
   type        = bool
-  description = "A switch to turn off/on the lambda's ability to auto expire keys"
+  description = "Enable expiring AWS Access Keys older than the defined expiration_age. This will remove AWS API access for expired IAM users"
   default     = true
 }
 
