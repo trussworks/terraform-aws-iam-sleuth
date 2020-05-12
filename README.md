@@ -4,31 +4,31 @@
 
 <!-- markdownlint-disable MD013 MD033  -->
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version |
+| --------- | ------- |
 | terraform | >= 0.12 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| aws | n/a |
+| ---- | ------- |
+| aws  | n/a     |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
-| enable\_slack\_webhook | Enable use of Slack webhook url to directly message Slack | `bool` | `true` | no |
-| expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
-| schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| slack\_message\_text | The content of the message sent to Slack directly | `string` | n/a | yes |
-| slack\_message\_title | The title of the message sent to Slack directly | `string` | n/a | yes |
-| sns\_message | The message that will be sent through the SNS topic | `string` | n/a | yes |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
-| warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings | `number` | `80` | no |
+| Name                | Description                                                                                                                  | Type     | Default                      | Required |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------- | :------: |
+| enable_auto_expire  | Enable expiring AWS Access Keys older than the defined expiration_age. This will remove AWS API access for expired IAM users | `bool`   | `true`                       |    no    |
+| expiration_age      | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on.                 | `number` | `90`                         |    no    |
+| schedule            | Schedule to run the audit. Default daily between M-F at 18:00 UTC                                                            | `string` | `"cron(0 18 ? * MON-FRI *)"` |    no    |
+| slack_message_text  | The content of the message sent to Slack directly                                                                            | `string` | n/a                          |   yes    |
+| slack_message_title | The title of the message sent to Slack directly                                                                              | `string` | n/a                          |   yes    |
+| sns_message         | The message that will be sent through the SNS topic                                                                          | `string` | n/a                          |   yes    |
+| sns_topic_arn       | SNS topic to send messages to, to be routed to slack-notify                                                                  | `string` | `""`                         |    no    |
+| warning_age         | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings            | `number` | `80`                         |    no    |
 
 ## Outputs
 
@@ -65,11 +65,25 @@ resource "aws_iam_user" "tfunke" {
 }
 ```
 
-For a Slack user the standard SlackID is suffecient. For a group the `Slack` tag must have a value of the form `subteam-SP12345` (no `^` is allowed). More info on Slack group identifiers [here](https://api.slack.com/reference/surfaces/formatting#mentioning-groups).
+For a Slack user the standard SlackID is sufficient. For a group the `Slack` tag must have a value of the form `subteam-SP12345` (no `^` is allowed). More info on Slack group identifiers [here](https://api.slack.com/reference/surfaces/formatting#mentioning-groups).
 
 For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/user_hash_dump.py) script.
 
 If the information isn't specified an error will be thrown in the logs and the plain text username will be in the notification.
+
+#### Slack Webhook URL
+
+`enable_slack_webhook` is turned on by default but it comes with several expectations:
+
+- account you will be running this module within has access to the SMM Parameter Store
+- the store contains a secret key called `slack_url` within the `iam-sleuth`
+- the secret key points to a slack webhook url you've created through the Slack API
+
+At Truss, we created this secret through [chamber](https://github.com/segmentio/chamber)
+
+```sh
+chamber write iam-sleuth slack_url <SLACK_WEBHOOK_URL>
+```
 
 #### Deploy
 
