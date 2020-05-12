@@ -10,7 +10,8 @@ data "aws_iam_account_alias" "current" {
 # AWS SSM Parameter
 #
 data "aws_ssm_parameter" "iam_sleuth_slack_url" {
-  name = "/iam-sleuth/slack-url"
+  count = var.enable_slack_webhook ? 1 : 0
+  name  = "/iam-sleuth/slack-url"
 }
 
 #
@@ -27,7 +28,7 @@ module "iam_sleuth" {
   runtime          = "python3.8"
   timeout          = "500" #seconds
   environment = {
-    SLACK_URL           = data.aws_ssm_parameter.iam_sleuth_slack_url
+    SLACK_URL           = var.enable_slack_webhook ? data.aws_ssm_parameter.iam_sleuth_slack_url.value : ""
     SNS_TOPIC           = var.sns_topic_arn
     ENABLE_AUTO_EXPIRE  = var.enable_auto_expire
     EXPIRATION_AGE      = var.expiration_age

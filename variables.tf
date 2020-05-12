@@ -16,6 +16,12 @@ variable "enable_auto_expire" {
   default     = true
 }
 
+variable "enable_slack_webhook" {
+  type        = bool
+  description = "Enable use of Slack webhook url to directly message Slack"
+  default     = true
+}
+
 variable "expiration_age" {
   type        = number
   description = "The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on."
