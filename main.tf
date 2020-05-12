@@ -7,6 +7,13 @@ data "aws_iam_account_alias" "current" {
 }
 
 #
+# AWS SSM Parameter
+#
+data "aws_ssm_parameter" "iam_sleuth_slack_url" {
+  name = "/iam-sleuth/slack-url"
+}
+
+#
 # Lambda
 #
 module "iam_sleuth" {
@@ -24,6 +31,7 @@ module "iam_sleuth" {
     ENABLE_AUTO_EXPIRE = var.enable_auto_expire
     EXPIRATION_AGE     = var.expiration_age
     WARNING_AGE        = var.warning_age
+    SLACK_URL          = data.aws_ssm_parameter.iam_sleuth_slack_url
   }
 }
 
