@@ -10,6 +10,12 @@ variable "sns_topic_arn" {
   default     = ""
 }
 
+variable "enable_auto_expire" {
+  type        = bool
+  description = "Enable expiring AWS Access Keys older than the defined expiration_age. This will remove AWS API access for expired IAM users"
+  default     = true
+}
+
 variable "expiration_age" {
   type        = number
   description = "The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on."
@@ -17,7 +23,7 @@ variable "expiration_age" {
 }
 
 variable "warning_age" {
-  type        = string
+  type        = number
   description = "The age (in days) at which the keys will be considered old and the associated user will start to receive warnings."
   default     = 80
 }
