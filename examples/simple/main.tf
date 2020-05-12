@@ -5,9 +5,11 @@ resource "aws_sns_topic" "slack_events" {
 module "iam_sleuth_with_sns_topic" {
   source = "../.."
 
-  sns_topic_arn      = aws_sns_topic.slack_events.arn
-  expiration_age     = 120
-  warning_age        = 10
-  enable_auto_expire = false
-  sns_message        = "This will show whose keys need to be rotated."
+  sns_topic_arn       = aws_sns_topic.slack_events.arn
+  expiration_age      = 120
+  warning_age         = 10
+  enable_auto_expire  = false
+  sns_message         = "This will show whose keys need to be rotated."
+  slack_message_title = "IAM Key Report"
+  slack_message_text  = "Who needs their keys rotated?"
 }

@@ -156,7 +156,7 @@ def send_sns_message(topic_arn, payload):
     resp = SNS.publish(
         TopicArn=topic_arn,
         Message=payload,
-        Subject='IAM Slueth Bot'
+        Subject='IAM Sleuth Bot'
     )
 
     if 'MessageId' in resp:
