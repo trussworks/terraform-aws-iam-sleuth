@@ -19,4 +19,5 @@ module "iam_sleuth_with_sns_topic" {
   sns_message         = "This will show whose keys need to be rotated."
   slack_message_title = "IAM Key Report"
   slack_message_text  = "Who needs their keys rotated?"
+  slack_url           = aws_ssm_parameter.slack_url.value
 }

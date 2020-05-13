@@ -21,11 +21,11 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
-| enable\_slack\_webhook | Enable use of Slack webhook url to directly message Slack | `bool` | `true` | no |
 | expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
 | slack\_message\_text | The content of the message sent to Slack directly | `string` | n/a | yes |
 | slack\_message\_title | The title of the message sent to Slack directly | `string` | n/a | yes |
+| slack\_url | The Slack webhook url to directly message Slack | `string` | `""` | no |
 | sns\_message | The message that will be sent through the SNS topic | `string` | n/a | yes |
 | sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
 | warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings | `number` | `80` | no |

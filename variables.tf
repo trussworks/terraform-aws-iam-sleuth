@@ -16,10 +16,10 @@ variable "enable_auto_expire" {
   default     = true
 }
 
-variable "enable_slack_webhook" {
-  type        = bool
-  description = "Enable use of Slack webhook url to directly message Slack"
-  default     = true
+variable "slack_url" {
+  type        = string
+  description = "The Slack webhook url to directly message Slack"
+  default     = ""
 }
 
 variable "expiration_age" {
