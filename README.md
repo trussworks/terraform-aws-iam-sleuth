@@ -23,9 +23,10 @@
 | enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
 | expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| slack\_message\_text | The content of the message sent to Slack directly | `string` | n/a | yes |
-| slack\_message\_title | The title of the message sent to Slack directly | `string` | n/a | yes |
-| sns\_message | The message that will be sent through the SNS topic | `string` | n/a | yes |
+| slack\_message\_text | The content of the message sent to Slack directly | `string` | `""` | no |
+| slack\_message\_title | The title of the message sent to Slack directly | `string` | `""` | no |
+| slack\_url | The Slack webhook url to directly message Slack | `string` | `""` | no |
+| sns\_message | The message that will be sent through the SNS topic | `string` | `""` | no |
 | sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
 | warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings | `number` | `80` | no |
 
@@ -64,7 +65,7 @@ resource "aws_iam_user" "tfunke" {
 }
 ```
 
-For a Slack user the standard SlackID is suffecient. For a group the `Slack` tag must have a value of the form `subteam-SP12345` (no `^` is allowed). More info on Slack group identifiers [here](https://api.slack.com/reference/surfaces/formatting#mentioning-groups).
+For a Slack user the standard SlackID is sufficient. For a group the `Slack` tag must have a value of the form `subteam-SP12345` (no `^` is allowed). More info on Slack group identifiers [here](https://api.slack.com/reference/surfaces/formatting#mentioning-groups).
 
 For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/user_hash_dump.py) script.
 
