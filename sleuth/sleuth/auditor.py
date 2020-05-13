@@ -122,6 +122,8 @@ def audit():
 
     # lets assemble and send slack msg
     if 'SNS_TOPIC' in os.environ:
+        if 'SNS_MESSAGE' not in os.environ:
+            LOGGER.warn('No message set for sns topic, please set SNS_MESSAGE envar!')
         LOGGER.info('Detected SNS setting so preparing and sending message via SNS')
         send_to_slack, slack_msg = prepare_sns_message(iam_users)
 
@@ -132,6 +134,8 @@ def audit():
 
 
     if 'SLACK_URL' in os.environ:
+        if 'SLACK_MESSAGE_TILE' not in os.environ or 'SLACK_MESSAGE_TEXT' in os.environ:
+            LOGGER.warn('No message set for slack, please set SLACK_MESSAGE_TILE and SLACK_MESSAGE_TEXT envars!')
         LOGGER.info('Using direct Slack API')
         # lets assemble the slack message
         send_to_slack, slack_msg = prepare_slack_message(iam_users)

@@ -23,10 +23,10 @@
 | enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
 | expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
 | schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| slack\_message\_text | The content of the message sent to Slack directly | `string` | n/a | yes |
-| slack\_message\_title | The title of the message sent to Slack directly | `string` | n/a | yes |
+| slack\_message\_text | The content of the message sent to Slack directly | `string` | `""` | no |
+| slack\_message\_title | The title of the message sent to Slack directly | `string` | `""` | no |
 | slack\_url | The Slack webhook url to directly message Slack | `string` | `""` | no |
-| sns\_message | The message that will be sent through the SNS topic | `string` | n/a | yes |
+| sns\_message | The message that will be sent through the SNS topic | `string` | `""` | no |
 | sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
 | warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings | `number` | `80` | no |
 
@@ -70,20 +70,6 @@ For a Slack user the standard SlackID is sufficient. For a group the `Slack` tag
 For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/user_hash_dump.py) script.
 
 If the information isn't specified an error will be thrown in the logs and the plain text username will be in the notification.
-
-#### Slack Webhook URL
-
-`enable_slack_webhook` is turned on by default but it comes with several expectations:
-
-- account you will be running this module within has access to the SMM Parameter Store
-- the store contains a secret key called `slack_url` within the `iam-sleuth`
-- the secret key points to a slack webhook url you've created through the Slack API
-
-At Truss, we created this secret through [chamber](https://github.com/segmentio/chamber)
-
-```sh
-chamber write iam-sleuth slack_url <SLACK_WEBHOOK_URL>
-```
 
 #### Deploy
 

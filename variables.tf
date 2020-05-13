@@ -37,14 +37,17 @@ variable "warning_age" {
 variable "sns_message" {
   type        = string
   description = "The message that will be sent through the SNS topic"
+  default     = ""
 }
 
 variable "slack_message_title" {
   type        = string
   description = "The title of the message sent to Slack directly"
+  default     = ""
 }
 
 variable "slack_message_text" {
   type        = string
   description = "The content of the message sent to Slack directly"
+  default     = ""
 }
