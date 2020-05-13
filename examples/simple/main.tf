@@ -9,7 +9,7 @@ resource "aws_ssm_parameter" "slack_url" {
   value       = "fake slack webhook url"
 }
 
-module "iam_sleuth_with_sns_topic" {
+module "iam_sleuth_with_sns_topic_and_slack_url" {
   source = "../.."
 
   sns_topic_arn       = aws_sns_topic.slack_events.arn
