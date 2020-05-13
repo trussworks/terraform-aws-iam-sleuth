@@ -2,6 +2,13 @@ resource "aws_sns_topic" "slack_events" {
   name = "slack-events-topic"
 }
 
+resource "aws_ssm_parameter" "slack_url" {
+  name        = "/iam-sleuth/slack-url"
+  description = "Slack webhook url to send messages directly through"
+  type        = "SecureString"
+  value       = "fake slack webhook url"
+}
+
 module "iam_sleuth_with_sns_topic" {
   source = "../.."
 
