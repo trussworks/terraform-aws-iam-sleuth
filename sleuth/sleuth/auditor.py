@@ -134,8 +134,8 @@ def audit():
 
 
     if 'SLACK_URL' in os.environ:
-        if 'SLACK_MESSAGE_TILE' not in os.environ or 'SLACK_MESSAGE_TEXT' in os.environ:
-            LOGGER.warn('No message set for slack, please set SLACK_MESSAGE_TILE and SLACK_MESSAGE_TEXT envars!')
+        if 'SLACK_MESSAGE_TITLE' not in os.environ or 'SLACK_MESSAGE_TEXT' in os.environ:
+            LOGGER.warn('No message set for slack, please set SLACK_MESSAGE_TITLE and SLACK_MESSAGE_TEXT envars!')
         LOGGER.info('Using direct Slack API')
         # lets assemble the slack message
         send_to_slack, slack_msg = prepare_slack_message(iam_users)
