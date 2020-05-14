@@ -138,7 +138,7 @@ EOF
 resource "aws_iam_policy" "sleuth_policy" {
   name        = "aws-iam-sleuth-policy"
   description = "Policy for IAM sleuth lambda checker"
-  policy      = var.sns_topic_arn == "" ? data.aws_iam_policy_document.task_role_policy_doc[0].json : data.aws_iam_policy_document.task_role_policy_doc_with_sns_topic[0].json
+  policy      = var.enable_sns_topic ? data.aws_iam_policy_document.task_role_policy_doc_with_sns_topic[0].json : data.aws_iam_policy_document.task_role_policy_doc[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "test_attach" {
