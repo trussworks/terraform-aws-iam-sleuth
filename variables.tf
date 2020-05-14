@@ -4,6 +4,12 @@ variable "schedule" {
   description = "Schedule to run the audit. Default daily between M-F at 18:00 UTC"
 }
 
+variable "enable_sns_topic" {
+  type        = bool
+  description = "Enable use of sns topic to send messages through"
+  default     = false
+}
+
 variable "sns_topic_arn" {
   type        = string
   description = "SNS topic to send messages to, to be routed to slack-notify"
