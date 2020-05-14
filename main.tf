@@ -27,7 +27,7 @@ module "iam_sleuth" {
     WARNING_AGE         = var.warning_age
     SNS_MESSAGE         = var.sns_message
     SLACK_MESSAGE_TITLE = var.slack_message_title
-    SLACK_MESSAGE_TXT   = var.slack_message_text
+    SLACK_MESSAGE_TEXT  = var.slack_message_text
   }
 }
 
