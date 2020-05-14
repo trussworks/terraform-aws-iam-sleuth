@@ -61,8 +61,31 @@ resource "aws_lambda_permission" "sleuth_lambda_permission" {
 #
 # IAM
 #
-
 data "aws_iam_policy_document" "task_role_policy_doc" {
+  count = var.enable_sns_topic ? 0 : 1
+  # Allow to list and disable keys
+  statement {
+    actions = [
+      "iam:UpdateAccessKey",
+      "iam:ListAccessKeys",
+      "iam:ListUserTags",
+    ]
+
+    resources = ["arn:aws:iam::*:user/*"]
+  }
+
+  # Allow to list and disable keys
+  statement {
+    actions = [
+      "iam:ListUsers",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "task_role_policy_doc_with_sns_topic" {
+  count = var.enable_sns_topic ? 1 : 0
   # Allow to list and disable keys
   statement {
     actions = [
@@ -115,7 +138,7 @@ EOF
 resource "aws_iam_policy" "sleuth_policy" {
   name        = "aws-iam-sleuth-policy"
   description = "Policy for IAM sleuth lambda checker"
-  policy      = data.aws_iam_policy_document.task_role_policy_doc.json
+  policy      = var.sns_topic_arn == "" ? data.aws_iam_policy_document.task_role_policy_doc[0].json : data.aws_iam_policy_document.task_role_policy_doc_with_sns_topic[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "test_attach" {
