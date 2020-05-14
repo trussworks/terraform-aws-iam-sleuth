@@ -105,7 +105,7 @@ def audit():
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
-        u.audit(os.environ['WARNING_AGE'], os.environ['EXPIRATION_AGE'])
+        u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']))
 
     #mainly for debugging
     print_key_report(iam_users)
