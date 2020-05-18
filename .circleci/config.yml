@@ -41,6 +41,7 @@ jobs:
             - "~/go/pkg/mod"
       - store_test_results:
           path: /tmp/test-results/gotest
+
   python-test:
     executor: python/default
     steps:
@@ -54,9 +55,27 @@ jobs:
       - python/test:
           pytest: true
 
+  python-package:
+    executor: python/default
+    steps:
+      - checkout
+      - run:
+          name: "Build deployment zip file"
+          command: |
+             pip install --target ./reqs -r sleuth/requirements.txt
+             cd reqs
+             zip -r9 ../deployment.zip .
+             cd ../sleuth
+             zip -r9 ../deployment.zip handler.py
+             zip -r9 ../deployment.zip -r sleuth/
+      - store_artifacts:
+          path: deployment.zip
+
+
 workflows:
   version: 2
   validate:
     jobs:
       #- terratest
       - python-test
+      - python-package
