@@ -78,4 +78,6 @@ workflows:
     jobs:
       - terratest
       - python-test
-      - python-package
+      - python-package:
+          - requires: python-test
+
