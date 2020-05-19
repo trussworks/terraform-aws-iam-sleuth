@@ -46,12 +46,8 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - python/load-cache:
-          dependency-file: ./sleuth/requirements.txt
       - python/install-deps:
-          dependency-file: ./sleuth/requirements.txt
-      - python/save-cache:
-          dependency-file: ./sleuth/requirements.txt
+          dependency-file: ./sleuth/requirements-dev.txt
       - python/test:
           pytest: true
 
@@ -68,9 +64,27 @@ jobs:
              cd ../sleuth
              zip -r9 ../deployment.zip handler.py
              zip -r9 ../deployment.zip -r sleuth/
+             echo "Packaging complete, saving as artifact for troubleshooting"
       - store_artifacts:
           path: deployment.zip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - deployment.zip
 
+  python-deploy-s3:
+    executor: python/default
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: "Ship package to S3"
+          command: |
+            ls
+            aws s3 cp deployment.zip $DEPLOYMENT_BUCKET/
+      - run:
+          name: "Make GH release"
+          command: echo "TODO if desired"
 
 workflows:
   version: 2
@@ -78,4 +92,10 @@ workflows:
     jobs:
       - terratest
       - python-test
-      - python-package
+      - python-package:
+          requires:
+            - python-test
+            #- terratest
+      - python-deploy-s3:
+          requires:
+            - python-package
