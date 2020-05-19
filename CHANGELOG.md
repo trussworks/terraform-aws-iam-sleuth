@@ -3,11 +3,21 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.0.5] - 2020-05-19
 
 ### Added
 
 - Serveral git precommits (markdown, terraform, terraformd-docs etc)
+
+
+### Changed
+
+- Deployment now uses pre-built zip file for lambda
+
+
+### Removed
+
+- Dropped custom packaging setup (very fragile)
 
 ## [0.9.0] - 2020-03-28
 
