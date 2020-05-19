@@ -3,11 +3,22 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.0.5] - 2020-05-20
 
 ### Added
 
 - Serveral git precommits (markdown, terraform, terraformd-docs etc)
+
+
+### Changed
+
+- Deployment now uses deployment asset from public S3 Bucket
+- Separated dev and deployment pip libs to reduce asset size
+
+
+### Removed
+
+- Dropped custom packaging setup (very fragile)
 
 ## [0.9.0] - 2020-03-28
 
