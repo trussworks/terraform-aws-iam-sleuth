@@ -68,6 +68,7 @@ jobs:
              cd ../sleuth
              zip -r9 ../deployment.zip handler.py
              zip -r9 ../deployment.zip -r sleuth/
+             echo "Packaging complete"
       - store_artifacts:
           path: deployment.zip
 
@@ -79,5 +80,6 @@ workflows:
       - terratest
       - python-test
       - python-package:
-          - requires: python-test
+          requires:
+            - python-test
 
