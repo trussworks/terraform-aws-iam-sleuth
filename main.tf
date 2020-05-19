@@ -6,28 +6,34 @@ data "aws_region" "current" {
 data "aws_iam_account_alias" "current" {
 }
 
+locals {
+  deployment_file = "${path.module}/releases/1.0.5.zip"
+}
+
 #
 # Lambda
 #
-module "iam_sleuth" {
-  source = "git@github.com:retentionscience/terraform_aws_lambda_python.git"
-
+resource "aws_lambda_function" "iam_sleuth" {
   description      = "Audits IAM Access keys for replacement"
   function_name    = "iam_sleuth"
-  handler_name     = "handler.handler"
-  role_arn         = aws_iam_role.iam_sleuth.arn
-  source_code_path = "${path.module}/sleuth/"
+  handler          = "handler.handler"
+  role             = aws_iam_role.iam_sleuth.arn
+  filename         = local.deployment_file
+  source_code_hash = filebase64sha256(local.deployment_file)
   runtime          = "python3.8"
   timeout          = "500" #seconds
-  environment = {
-    SLACK_URL           = var.slack_url
-    SNS_TOPIC           = var.sns_topic_arn
-    ENABLE_AUTO_EXPIRE  = var.enable_auto_expire
-    EXPIRATION_AGE      = var.expiration_age
-    WARNING_AGE         = var.warning_age
-    SNS_MESSAGE         = var.sns_message
-    SLACK_MESSAGE_TITLE = var.slack_message_title
-    SLACK_MESSAGE_TEXT  = var.slack_message_text
+
+  environment {
+    variables = {
+      SLACK_URL           = var.slack_url
+      SNS_TOPIC           = var.sns_topic_arn
+      ENABLE_AUTO_EXPIRE  = var.enable_auto_expire
+      EXPIRATION_AGE      = var.expiration_age
+      WARNING_AGE         = var.warning_age
+      SNS_MESSAGE         = var.sns_message
+      SLACK_MESSAGE_TITLE = var.slack_message_title
+      SLACK_MESSAGE_TEXT  = var.slack_message_text
+    }
   }
 }
 
@@ -46,13 +52,13 @@ resource "aws_cloudwatch_event_rule" "lambda_rule_trigger" {
 resource "aws_cloudwatch_event_target" "sleuth_lambda_target" {
   target_id = "sleuth_lambda_target" // Worked for me after I added `target_id`
   rule      = aws_cloudwatch_event_rule.lambda_rule_trigger.name
-  arn       = module.iam_sleuth.arn
+  arn       = aws_lambda_function.iam_sleuth.arn
 }
 
 resource "aws_lambda_permission" "sleuth_lambda_permission" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = module.iam_sleuth.arn
+  function_name = aws_lambda_function.iam_sleuth.arn
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.lambda_rule_trigger.arn
 }
