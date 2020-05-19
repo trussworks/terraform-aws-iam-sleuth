@@ -58,5 +58,5 @@ workflows:
   version: 2
   validate:
     jobs:
-      #- terratest
+      - terratest
       - python-test
