@@ -20,6 +20,8 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| deployment\_bucket | The bucket that hold the lambda deployment asset | `string` | `"TODO"` | no |
+| deployment\_s3\_key | S3 Key to the deployment assset | `string` | `"TODO"` | no |
 | enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
 | enable\_sns\_topic | Enable use of sns topic to send messages through | `bool` | `false` | no |
 | expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |

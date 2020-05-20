@@ -57,3 +57,15 @@ variable "slack_message_text" {
   description = "The content of the message sent to Slack directly"
   default     = ""
 }
+
+variable "deployment_bucket" {
+  type        = string
+  description = "The bucket that hold the lambda deployment asset"
+  default     = "TODO"
+}
+
+variable "deployment_s3_key" {
+  type        = string
+  description = "S3 Key to the deployment assset"
+  default     = "TODO"
+}

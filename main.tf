@@ -6,22 +6,18 @@ data "aws_region" "current" {
 data "aws_iam_account_alias" "current" {
 }
 
-locals {
-  deployment_file = "${path.module}/releases/1.0.5.zip"
-}
-
 #
 # Lambda
 #
 resource "aws_lambda_function" "iam_sleuth" {
-  description      = "Audits IAM Access keys for replacement"
-  function_name    = "iam_sleuth"
-  handler          = "handler.handler"
-  role             = aws_iam_role.iam_sleuth.arn
-  filename         = local.deployment_file
-  source_code_hash = filebase64sha256(local.deployment_file)
-  runtime          = "python3.8"
-  timeout          = "500" #seconds
+  description   = "Audits IAM Access keys for replacement"
+  function_name = "iam_sleuth"
+  s3_bucket     = var.deployment_bucket
+  s3_key        = var.deployment_s3_key
+  handler       = "handler.handler"
+  role          = aws_iam_role.iam_sleuth.arn
+  runtime       = "python3.8"
+  timeout       = "500" #seconds
 
   environment {
     variables = {
