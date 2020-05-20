@@ -47,7 +47,7 @@ jobs:
     steps:
       - checkout
       - python/install-deps:
-          dependency-file: ./sleuth/requirements.txt
+          dependency-file: ./sleuth/requirements-dev.txt
       - python/test:
           pytest: true
 
