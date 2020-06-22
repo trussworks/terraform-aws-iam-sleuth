@@ -1,0 +1,9 @@
+#!/bin/bash
+
+pip install --target ./reqs -r sleuth/requirements.txt
+cd reqs
+zip -r9 deployment.zip .
+cd ../sleuth
+zip -r9 deployment.zip handler.py
+zip -r9 deployment.zip -r sleuth/
+echo "Packaging complete, saving as artifact for troubleshooting"
