@@ -4,17 +4,7 @@ PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="terraform-aws-iam-sleuth"
 ZIP_NAME="deployment.zip"
-
-CURRENT_TAG=$(git describe --abbrev=0 --tags)
-TAG_BITS=(${CURRENT_TAG//./ })
-
-MAJOR=${TAG_BITS[0]}
-MINOR=${TAG_BITS[1]}
-PATCH=${TAG_BITS[2]}
-PATCH=$((PATCH+1))
-
-NEW_TAG="$MAJOR.$MINOR.$PATCH"
-git tag $NEW_TAG
+NEW_TAG="1.0.7"
 
 docker pull cibuilds/github
 docker run --env GITHUB_TOKEN="$GITHUB_TOKEN" --rm -v "$(pwd)":/usr/local/src/your-app cibuilds/github ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG /usr/local/src/your-app/$ZIP_NAME

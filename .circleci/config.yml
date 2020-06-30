@@ -9,6 +9,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:385c300cc218b910b6fd2da8041fe848001cecf4
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build
           command: scripts/build
