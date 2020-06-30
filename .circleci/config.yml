@@ -4,6 +4,17 @@ orbs:
   python: circleci/python@0.3.0
 
 jobs:
+  build-and-release:
+    docker:
+      - image: trussworks/circleci-docker-primary:385c300cc218b910b6fd2da8041fe848001cecf4
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: scripts/build
+      - run:
+          name: release
+          command: scripts/release
   python-test:
     executor: python/default
     steps:
@@ -22,3 +33,11 @@ workflows:
   validate:
     jobs:
       - python-test
+  release:
+    jobs:
+      - build-and-release:
+          filters:
+            branches:
+              ignore: /^.*/
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*(-.*)*/

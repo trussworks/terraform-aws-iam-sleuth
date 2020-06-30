@@ -1,3 +1,32 @@
 #!/bin/bash
 
-aws s3 cp deployment.zip s3://[bucekt]/iam-sleuth/[v0.0.1]/deployment.zip
+PUBLIC_BUCKET="trussworks-tools-us-west-2"
+GITHUB_USER="trussworks"
+GITHUB_REPO="terraform-aws-iam-sleuth"
+ZIP_NAME="deployment.zip"
+
+CURRENT_TAG=$(git describe --abbrev=0 --tags)
+TAG_BITS=(${CURRENT_TAG//./ })
+
+MAJOR=${TAG_BITS[0]}
+MINOR=${TAG_BITS[1]}
+PATCH=${TAG_BITS[2]}
+PATCH=$((PATCH+1))
+
+NEW_TAG="$MAJOR.$MINOR.$PATCH"
+git tag $NEW_TAG
+
+docker pull cibuilds/github
+docker run --env GITHUB_TOKEN="$GITHUB_TOKEN" --rm -v "$(pwd)":/usr/local/src/your-app cibuilds/github ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG /usr/local/src/your-app/$ZIP_NAME
+
+if [[ -n "${CIRCLECI+x}" ]]; then
+    // assume roles
+    temp_role=$(aws sts assume-role \
+                      --role-arn arn:aws:iam::313564602749:role/circleci \
+                      --role-session-name circleci )
+              export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq .Credentials.AccessKeyId | xargs)
+              export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey | xargs)
+              export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken | xargs)
+    aws s3 cp $ZIP_NAME s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME --sse AES256
+else
+    AWS_VAULT_KEYCHAIN_NAME=login aws-vault exec trussworks-prod -- aws s3 cp $ZIP_NAME s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME --sse AES256
