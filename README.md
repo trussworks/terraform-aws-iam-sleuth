@@ -4,32 +4,33 @@
 
 <!-- markdownlint-disable MD013 MD033  -->
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version |
+| --------- | ------- |
 | terraform | >= 0.12 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| aws | n/a |
+| ---- | ------- |
+| aws  | n/a     |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
-| enable\_sns\_topic | Enable use of sns topic to send messages through | `bool` | `false` | no |
-| expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
-| schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| slack\_message\_text | The content of the message sent to Slack directly | `string` | `""` | no |
-| slack\_message\_title | The title of the message sent to Slack directly | `string` | `""` | no |
-| slack\_url | The Slack webhook url to directly message Slack | `string` | `""` | no |
-| sns\_message | The message that will be sent through the SNS topic | `string` | `""` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
-| warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings | `number` | `80` | no |
+| Name                | Description                                                                                                                  | Type     | Default                      | Required |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------- | :------: |
+| enable_auto_expire  | Enable expiring AWS Access Keys older than the defined expiration_age. This will remove AWS API access for expired IAM users | `bool`   | `true`                       |    no    |
+| enable_sns_topic    | Enable use of sns topic to send messages through                                                                             | `bool`   | `false`                      |    no    |
+| expiration_age      | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on.                 | `number` | `90`                         |    no    |
+| schedule            | Schedule to run the audit. Default daily between M-F at 18:00 UTC                                                            | `string` | `"cron(0 18 ? * MON-FRI *)"` |    no    |
+| slack_message_text  | The content of the message sent to Slack directly                                                                            | `string` | `""`                         |    no    |
+| slack_message_title | The title of the message sent to Slack directly                                                                              | `string` | `""`                         |    no    |
+| slack_url           | The Slack webhook url to directly message Slack                                                                              | `string` | `""`                         |    no    |
+| sns_message         | The message that will be sent through the SNS topic                                                                          | `string` | `""`                         |    no    |
+| sns_topic_arn       | SNS topic to send messages to, to be routed to slack-notify                                                                  | `string` | `""`                         |    no    |
+| warning_age         | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings            | `number` | `80`                         |    no    |
 
 ## Outputs
 
@@ -102,7 +103,7 @@ A user failed to cycle their AWS key. Sleuth disabled the out of compliant key a
 Install dependencies:
 
 ```sh
-brew install circleci pre-commit terraform python direnv
+brew install circleci pre-commit terraform python direnv ghr
 pre-commit install --install-hooks
 ```
 
