@@ -14,7 +14,7 @@ jobs:
           name: Build
           command: scripts/build
       - run:
-          name: release
+          name: Release
           command: scripts/release
   python-test:
     executor: python/default
