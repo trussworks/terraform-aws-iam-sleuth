@@ -35,7 +35,7 @@ workflows:
       - python-test
   release:
     jobs:
-      - build-and-release
-        # filters:
-        #     branches:
-        #         only: master
+      - build-and-release:
+          filters:
+            branches:
+              only: master

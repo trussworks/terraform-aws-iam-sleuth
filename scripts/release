@@ -4,7 +4,7 @@ PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="terraform-aws-iam-sleuth"
 ZIP_NAME="deployment.zip"
-NEW_TAG="1.0.6"
+NEW_TAG="1.0.7"
 
 ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG $ZIP_NAME
 echo "Created a new release with ${NEW_TAG}"
