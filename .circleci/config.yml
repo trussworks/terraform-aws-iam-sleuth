@@ -15,6 +15,21 @@ jobs:
       - run:
           name: Release
           command: scripts/release
+  validate:
+    docker:
+      - image: trussworks/circleci-docker-primary:e66fbea875bcb788b29b1b5f59142e8231961ec5
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Run pre-commit tests
+          command: pre-commit run --all-files
+      - save_cache:
+          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
   python-test:
     executor: python/default
     steps:
@@ -32,6 +47,7 @@ workflows:
   version: 2
   validate:
     jobs:
+      - validate
       - python-test
   release:
     jobs:
