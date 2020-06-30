@@ -6,10 +6,9 @@ orbs:
 jobs:
   build-and-release:
     docker:
-      - image: trussworks/circleci-docker-primary:385c300cc218b910b6fd2da8041fe848001cecf4
+      - image: trussworks/circleci-docker-primary:ghr
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Build
           command: scripts/build
@@ -37,3 +36,6 @@ workflows:
   release:
     jobs:
       - build-and-release
+        # filters:
+        #     branches:
+        #         only: master

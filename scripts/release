@@ -4,13 +4,10 @@ PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="terraform-aws-iam-sleuth"
 ZIP_NAME="deployment.zip"
-NEW_TAG="1.0.7"
+NEW_TAG="1.0.6"
 
-ls
-ls ..
-
-docker pull cibuilds/github
-docker run --env GITHUB_TOKEN="$GITHUB_TOKEN" --rm -v "$(pwd)":/usr/local/src/your-app cibuilds/github ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG /usr/local/src/your-app/$ZIP_NAME
+ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG $ZIP_NAME
+echo "Created a new release with ${NEW_TAG}"
 
 if [[ -n "${CIRCLECI+x}" ]]; then
     // assume roles
@@ -23,3 +20,6 @@ if [[ -n "${CIRCLECI+x}" ]]; then
     aws s3 cp $ZIP_NAME s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME --sse AES256
 else
     AWS_VAULT_KEYCHAIN_NAME=login aws-vault exec trussworks-prod -- aws s3 cp $ZIP_NAME s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME --sse AES256
+fi
+
+echo "Uploaded ${ZIP_NAME} to S3 bucket ${PUBLIC_BUCKET}"

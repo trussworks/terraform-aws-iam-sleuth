@@ -9,5 +9,3 @@ cd ../sleuth
 zip -r9 ../$ZIP_NAME handler.py
 zip -r9 ../$ZIP_NAME -r sleuth/
 echo "Packaging complete, saving as artifact for troubleshooting"
-ls
-ls ..
