@@ -5,12 +5,12 @@ set -eu -o pipefail
 PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="aws-iam-sleuth"
-ZIP_NAME="deployment.zip"
-NEW_TAG="1.0.7"
+ZIP_NAME=${ZIP_NAME:-deployment.zip}
+NEW_TAG=${NEW_TAG:-1.0.5}
 TARGET=s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME
 
 ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG $ZIP_NAME
-echo "Created a new release with ${NEW_TAG}"
+echo "Created a new GitHub Release with ${NEW_TAG}"
 
 if [[ -n "${CIRCLECI+x}" ]]; then
     // assume roles

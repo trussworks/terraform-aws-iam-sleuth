@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-ZIP_NAME="deployment.zip"
+ZIP_NAME=${ZIP_NAME:-deployment.zip}
 
 pip install --target ./reqs -r sleuth/requirements.txt
 pushd reqs
