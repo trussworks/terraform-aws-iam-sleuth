@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu -o pipefail
+
 PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="terraform-aws-iam-sleuth"

@@ -5,9 +5,12 @@ set -eu -o pipefail
 ZIP_NAME="deployment.zip"
 
 pip install --target ./reqs -r sleuth/requirements.txt
-cd reqs
+pushd reqs
 zip -r9 ../$ZIP_NAME .
-cd ../sleuth
+popd
+pushd sleuth
 zip -r9 ../$ZIP_NAME handler.py
 zip -r9 ../$ZIP_NAME -r sleuth/
+popd
+
 echo "Packaging complete, saving as artifact"
