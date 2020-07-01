@@ -9,6 +9,11 @@ ZIP_NAME=${ZIP_NAME:-deployment.zip}
 NEW_TAG=${NEW_TAG:-1.0.5}
 TARGET=s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME
 
+if [[ -z "${CIRCLECI+x}" && -z $(type -p ghr) ]]; then
+    echo "WARNING: ghr not found, install via: brew install ghr"
+    exit
+fi
+
 ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG $ZIP_NAME
 echo "Created a new GitHub Release with ${NEW_TAG}"
 
