@@ -3,39 +3,6 @@
 [Changelog](./CHANGELOG.md)
 
 <!-- markdownlint-disable MD013 MD033  -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
-
-| Name | Version |
-|------|---------|
-| terraform | >= 0.12 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| aws | n/a |
-
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| enable\_auto\_expire | Enable expiring AWS Access Keys older than the defined expiration\_age. This will remove AWS API access for expired IAM users | `bool` | `true` | no |
-| enable\_sns\_topic | Enable use of sns topic to send messages through | `bool` | `false` | no |
-| expiration\_age | The age (in days) at which the keys will be considered expired and will expire if auto disable is turned on. | `number` | `90` | no |
-| schedule | Schedule to run the audit. Default daily between M-F at 18:00 UTC | `string` | `"cron(0 18 ? * MON-FRI *)"` | no |
-| slack\_message\_text | The content of the message sent to Slack directly | `string` | `""` | no |
-| slack\_message\_title | The title of the message sent to Slack directly | `string` | `""` | no |
-| slack\_url | The Slack webhook url to directly message Slack | `string` | `""` | no |
-| sns\_message | The message that will be sent through the SNS topic | `string` | `""` | no |
-| sns\_topic\_arn | SNS topic to send messages to, to be routed to slack-notify | `string` | `""` | no |
-| warning\_age | The age (in days) at which the keys will be considered old and the associated user will start to receive warnings | `number` | `80` | no |
-
-## Outputs
-
-No output.
-
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## What is this for
 
@@ -72,17 +39,6 @@ For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/
 
 If the information isn't specified an error will be thrown in the logs and the plain text username will be in the notification.
 
-#### Deploy
-
-Now all the dependencies are ready and the environment is prepped for Sleuth usage we can now deploy the lambda.
-
-```hcl
-module "iam_sleuth" {
-  source = "../to/module/aws-api-key-sleuth"
-  sns_topic_arn = data.aws_sns_topic.slack_events.arn
-}
-```
-
 ## Screenshots
 
 A user is pinged directly with an AWS key 8 days before of the 90 day limit.
@@ -102,7 +58,7 @@ A user failed to cycle their AWS key. Sleuth disabled the out of compliant key a
 Install dependencies:
 
 ```sh
-brew install circleci pre-commit terraform python direnv
+brew install circleci pre-commit python direnv ghr
 pre-commit install --install-hooks
 ```
 
@@ -122,16 +78,4 @@ To test the Python app:
 
 ```sh
 pytest
-```
-
-To test the module itself:
-
-```sh
-make test
-```
-
-or
-
-```sh
-AWS_VAULT_KEYCHAIN_NAME=<NAME> aws-vault exec <PROFILE> -- make test
 ```
