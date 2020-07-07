@@ -6,7 +6,7 @@ PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="aws-iam-sleuth"
 ZIP_NAME=${ZIP_NAME:-deployment.zip}
-NEW_TAG=${NEW_TAG:-1.0.9}
+NEW_TAG=${NEW_TAG:-v1.0.9}
 TARGET=s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME
 
 if [[ -z "${CIRCLECI+x}" && -z $(type -p ghr) ]]; then
