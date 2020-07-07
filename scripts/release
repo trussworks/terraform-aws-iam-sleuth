@@ -6,11 +6,11 @@ PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="aws-iam-sleuth"
 ZIP_NAME=${ZIP_NAME:-deployment.zip}
-NEW_TAG=${NEW_TAG:-1.0.5}
+NEW_TAG=${NEW_TAG:-v1.0.9}
 TARGET=s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME
 
 if [[ -z "${CIRCLECI+x}" && -z $(type -p ghr) ]]; then
-    echo "WARNING: ghr not found, install via: brew install ghr"
+    echo "ERROR: ghr not found, install via: brew install ghr"
     exit
 fi
 
@@ -18,7 +18,7 @@ ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG $ZIP_NAME
 echo "Created a new GitHub Release with ${NEW_TAG}"
 
 if [[ -n "${CIRCLECI+x}" ]]; then
-    // assume roles
+    # assume roles
     temp_role=$(aws sts assume-role \
                       --role-arn arn:aws:iam::313564602749:role/circleci \
                       --role-session-name circleci )
