@@ -36,6 +36,7 @@ jobs:
       - checkout
       - python/load-cache:
           dependency-file: ./sleuth/requirements.txt
+          # The scheme here let's us bust the cache if python is upgraded or if we modify the requirements
           key: pip-3.8.5-{{ checksum "./sleuth/requirements.txt" }}
       - python/install-deps:
           dependency-file: ./sleuth/requirements.txt
