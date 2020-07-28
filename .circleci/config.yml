@@ -36,10 +36,12 @@ jobs:
       - checkout
       - python/load-cache:
           dependency-file: ./sleuth/requirements.txt
+          key: pip-3.8.5-{{ checksum "./sleuth/requirements.txt" }}
       - python/install-deps:
           dependency-file: ./sleuth/requirements.txt
       - python/save-cache:
           dependency-file: ./sleuth/requirements.txt
+          key: pip-3.8.5-{{ checksum "./sleuth/requirements.txt" }}
       - python/test:
           pytest: true
 
