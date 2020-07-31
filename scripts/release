@@ -6,13 +6,16 @@ PUBLIC_BUCKET="trussworks-tools-us-west-2"
 GITHUB_USER="trussworks"
 GITHUB_REPO="aws-iam-sleuth"
 ZIP_NAME=${ZIP_NAME:-deployment.zip}
-NEW_TAG=${CIRCLE_BRANCH}:-v1.0.9}
+NEW_TAG=${CIRCLE_BRANCH}
 TARGET=s3://$PUBLIC_BUCKET/iam-sleuth/$NEW_TAG/$ZIP_NAME
 
 if [[ -z "${CIRCLECI+x}" && -z $(type -p ghr) ]]; then
     echo "ERROR: ghr not found, install via: brew install ghr"
     exit
 fi
+
+echo "circle branch = ${CIRCLE_BRANCH}"
+echo "tag = ${NEW_TAG}"
 
 ghr -u $GITHUB_USER -r $GITHUB_REPO $NEW_TAG $ZIP_NAME
 echo "Created a new GitHub Release with ${NEW_TAG}"
