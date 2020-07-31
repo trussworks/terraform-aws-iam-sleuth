@@ -4,7 +4,15 @@ orbs:
   python: circleci/python@0.3.2
 
 jobs:
-  build-and-release:
+  build:
+    docker:
+      - image: cimg/python:3.7
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: scripts/build
+  release:
     docker:
       - image: trussworks/circleci-docker-primary:ghr
     steps:
@@ -54,7 +62,9 @@ workflows:
       - python-test
   release:
     jobs:
-      - build-and-release:
+      - release:
           filters:
             branches:
-              only: master
+              ignore: /^.*/
+            tags:
+              only: /^v.*/
