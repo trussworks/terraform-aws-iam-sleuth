@@ -22,7 +22,7 @@ jobs:
           command: scripts/build
       - run:
           name: Release
-          command: echo ${CIRCLE_PROJECT_USERNAME} ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BRANCH}
+          command: echo "${CIRCLE_PROJECT_USERNAME} ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BRANCH}"
   validate:
     docker:
       - image: trussworks/circleci-docker-primary:e66fbea875bcb788b29b1b5f59142e8231961ec5
