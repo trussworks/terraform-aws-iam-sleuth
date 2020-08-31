@@ -62,9 +62,4 @@ workflows:
       - python-test
   release:
     jobs:
-      - release:
-          filters:
-            branches:
-              ignore: /^.*/
-            tags:
-              only: /^v.*/
+      - release
