@@ -14,7 +14,7 @@ jobs:
           command: scripts/build
   release:
     docker:
-      - image: trussworks/circleci-docker-primary:ghr
+      - image: trussworks/ghr:391c83e041d5467164631f7e5be2fa00b46e14a7
     steps:
       - checkout
       - run:
