@@ -7,6 +7,9 @@ jobs:
   build:
     docker:
       - image: cimg/python:3.7
+        auth:
+          password: $DOCKER_PASSWORD
+          username: $DOCKER_USERNAME
     steps:
       - checkout
       - run:
@@ -15,6 +18,9 @@ jobs:
   release:
     docker:
       - image: trussworks/ghr:391c83e041d5467164631f7e5be2fa00b46e14a7
+        auth:
+          password: $DOCKER_PASSWORD
+          username: $DOCKER_USERNAME
     steps:
       - checkout
       - run:
@@ -25,7 +31,11 @@ jobs:
           command: scripts/release $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME << pipeline.git.tag >>
   validate:
     docker:
-      - image: trussworks/circleci-docker-primary:e66fbea875bcb788b29b1b5f59142e8231961ec5
+      - image: trussworks/circleci:56e6e6ef96436eff868243a7a0e42322c4df43c5
+        auth:
+          password: $DOCKER_PASSWORD
+          username: $DOCKER_USERNAME
+
     steps:
       - checkout
       - restore_cache:
@@ -58,11 +68,18 @@ workflows:
   version: 2
   validate:
     jobs:
-      - validate
-      - python-test
+      - validate:
+          context:
+          - org-global
+      - python-test:
+          context:
+          - org-global
+
   release:
     jobs:
       - release:
+          context:
+          - org-global
           filters:
             branches:
               ignore: /^.*/
