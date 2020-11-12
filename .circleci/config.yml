@@ -17,7 +17,7 @@ jobs:
           command: scripts/build
   release:
     docker:
-      - image: trussworks/ghr:391c83e041d5467164631f7e5be2fa00b46e14a7
+      - image: trussworks/gh-cli:3f31164533ef9439a3b6af1a5cf26713a2e6614e
         auth:
           password: $DOCKER_PASSWORD
           username: $DOCKER_USERNAME
