@@ -39,6 +39,51 @@ For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/
 
 If the information isn't specified an error will be thrown in the logs and the plain text username will be in the notification.
 
+
+## Suggested Deployment Method
+
+Using the Terraform module [terraform-aws-lambda](https://github.com/trussworks/terraform-aws-lambda) you can deploy the code released to this Github repository.
+
+```hcl
+module "iam_sleuth" {
+  source                 = "trussworks/lambda/aws"
+  version                = "2.2.0"
+  name                   = "iam_sleuth"
+  handler                = "handler.handler"
+  job_identifier         = "iam_sleuth"
+  runtime                = "python3.8"
+  timeout                = "500"
+  role_policy_arns_count = 2
+  role_policy_arns = ["${aws_iam_policy.sleuth_policy.arn}",
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"]
+
+  github_project  = "trussworks/aws-iam-sleuth"
+  github_filename = "deployment.zip"
+  github_release  = "v1.0.10"
+
+  validation_sha = "7a501951f8c91758acfcd3e17a06ea7e1fe4021f3b08e54064091d73a95dd6bb"
+
+  source_types = ["events"]
+  source_arns  = ["${aws_cloudwatch_event_rule.sleuth_lambda_rule_trigger.arn}"]
+
+  env_vars = {
+    ENABLE_AUTO_EXPIRE  = "false"
+    EXPIRATION_AGE      = 90
+    WARNING_AGE         = 50
+    SLACK_URL           = data.aws_ssm_parameter.slack_url.value
+    ENABLE_SNS_TOPIC    = "false"
+    SNS_TOPIC           = ""
+    SLACK_MESSAGE_TITLE = "Key Rotation Instructions"
+    SLACK_MESSAGE_TEXT  = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
+  }
+
+  tags = {
+    "Service" = "iam_sleuth"
+  }
+
+}
+```
+
 ## Screenshots
 
 A user is pinged directly with an AWS key 8 days before of the 90 day limit.
