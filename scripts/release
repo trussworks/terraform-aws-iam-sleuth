@@ -24,7 +24,7 @@ if [[ -z "${CIRCLECI+x}" && -z $(type -p ghr) ]]; then
     exit
 fi
 
-gh release upload --clobber --repo "${GITHUB_USER}/${GITHUB_REPO}" $NEW_TAG $ZIP_NAME checksums.tx
+gh release upload --clobber --repo "${GITHUB_USER}/${GITHUB_REPO}" $NEW_TAG $ZIP_NAME checksums.txt
 echo "Uploaded zipfile and checksums to GitHub Release with tag ${NEW_TAG}"
 
 if [[ -n "${CIRCLECI+x}" ]]; then
