@@ -3,7 +3,21 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.1.0] - 2020-11-12
+
+### Added
+
+- DEBUG envar for additional debugging
+
+### Changed
+
+- Slack and SNS now have Title and Additional Text (previously only Slack had this)
+
+### Removed
+
+- Requirement of Slack or SNS setting to run, Lambda can run without any notifications
+
+## [1.0.10] - 2020-11-12
 
 ### Added
 

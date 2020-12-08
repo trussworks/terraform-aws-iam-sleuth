@@ -149,9 +149,8 @@ def get_ssm_value(ssm_path):
 def send_sns_message(topic_arn, payload):
     """Send SNS message
     """
-    print(payload)
+    # print(payload)
     payload = json.dumps(payload)
-    print(payload)
 
     resp = SNS.publish(
         TopicArn=topic_arn,
@@ -183,11 +182,13 @@ def send_slack_message(webhook, payload):
         LOGGER.error(msg)
 
 
-def prepare_sns_message(users):
+def prepare_sns_message(users, title, addltext):
     """Prepares message for sending via SNS topic (plain text)
 
     Parameters:
     users (list): Users with slack and key info attached to user object
+    title (str): Title of the message
+    addltext (str): Additional text such as further instructions etc
 
     Returns:
     bool: True if slack send, false if not
@@ -197,27 +198,27 @@ def prepare_sns_message(users):
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                msgs.append('{}\'s key expires in {} days.'.format(format_slack_id(u.slack_id, u.username), k.valid_for))
+                msgs.append('{}\'s key expires in {} days.'.format(u.username, k.valid_for))
 
             if k.audit_state == 'expire':
-                msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id, u.username)))
+                msgs.append('{}\'s key is disabled.'.format(u.username))
 
-    msg = 'AWS IAM Key report:\n\n{}\n\n{}'.format("\n".join(msgs), os.environ['SNS_MESSAGE'])
+    msg = '{}:\n\n{}\n\n{}'.format(title, "\n".join(msgs), addltext)
 
     send_to_slack = False
     if len(msgs) > 0:
         send_to_slack = True
 
-    print(msg)
+    #print(msg)
     return send_to_slack, msg
 
-def prepare_slack_message(users):
+def prepare_slack_message(users, title, addltext):
     """Prepares message for sending via Slack webhook
-
-    Note: Will not work with SNS sending
 
     Parameters:
     users (list): Users with slack and key info attached to user object
+    title (str): Title of the message
+    addltext (str): Additional text such as further instructions etc
 
     Returns:
     bool: True if slack send, false if not
@@ -260,8 +261,8 @@ def prepare_slack_message(users):
     }
 
     main_attachment = {
-        "title": os.environ['SLACK_MESSAGE_TITLE'],
-        "text": os.environ['SLACK_MESSAGE_TEXT']
+        "title": title,
+        "text": addltext
     }
 
 

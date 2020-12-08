@@ -71,10 +71,10 @@ module "iam_sleuth" {
     EXPIRATION_AGE      = 90
     WARNING_AGE         = 50
     SLACK_URL           = data.aws_ssm_parameter.slack_url.value
-    ENABLE_SNS_TOPIC    = "false"
     SNS_TOPIC           = ""
-    SLACK_MESSAGE_TITLE = "Key Rotation Instructions"
-    SLACK_MESSAGE_TEXT  = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
+    MSG_TITLE           = "Key Rotation Instructions"
+    MSG_TEXT            = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
+    DEBUG               = False
   }
 
   tags = {

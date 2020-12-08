@@ -36,7 +36,7 @@ LOGGER.addHandler(logHandler)
 
 from sleuth.auditor import audit
 
-VERSION = '0.9.0'
+VERSION = '1.1.0'
 
 def handler(event, context):
     """
