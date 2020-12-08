@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Slack and SNS now have Title and Additional Text (previously only Slack had this)
+- Moved notification text to the beginning of the message
 
 ### Removed
 

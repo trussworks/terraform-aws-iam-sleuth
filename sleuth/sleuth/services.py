@@ -203,13 +203,15 @@ def prepare_sns_message(users, title, addltext):
             if k.audit_state == 'expire':
                 msgs.append('{}\'s key is disabled.'.format(u.username))
 
-    msg = '{}:\n\n{}\n\n{}'.format(title, "\n".join(msgs), addltext)
+    msg = '{}:\n{}\n{}'.format(title, addltext, "\n".join(msgs))
 
     send_to_slack = False
     if len(msgs) > 0:
         send_to_slack = True
 
-    #print(msg)
+    if os.environ.get('DEBUG', False):
+        print(msg)
+
     return send_to_slack, msg
 
 def prepare_slack_message(users, title, addltext):
@@ -272,6 +274,10 @@ def prepare_slack_message(users, title, addltext):
     }
 
     send_to_slack = False
+
+    # lets add the notif text
+    msg['attachments'].append(main_attachment)
+
     # only add the attachments that have users
     if len(old_msgs) > 0:
         msg['attachments'].append(old_attachment)
@@ -281,5 +287,8 @@ def prepare_slack_message(users, title, addltext):
         msg['attachments'].append(expired_attachment)
         send_to_slack = True
 
-    msg['attachments'].append(main_attachment)
+
+    if os.environ.get('DEBUG', False):
+        print(msg)
+
     return send_to_slack, msg
