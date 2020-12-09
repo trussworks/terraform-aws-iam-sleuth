@@ -125,11 +125,11 @@ def disable_key(key, username):
     Returns:
     None
     """
-    LOGGER.info('Disabling key {} for User {}'.format(key.key_id, username))
+    if os.environ.get('DEBUG', False):
+        LOGGER.info('Disabling key {} for User {}'.format(key.key_id, username))
     IAM.update_access_key(UserName=key.username,
                           AccessKeyId=key.key_id,
                           Status='Inactive')
-    LOGGER.info('Successfully disabled key {} for User {}'.format(key.key_id, username))
 
 
 def get_ssm_value(ssm_path):
@@ -149,7 +149,10 @@ def get_ssm_value(ssm_path):
 def send_sns_message(topic_arn, payload):
     """Send SNS message
     """
-    # print(payload)
+
+    if os.environ.get('DEBUG', False):
+        print(payload)
+
     payload = json.dumps(payload)
 
     resp = SNS.publish(

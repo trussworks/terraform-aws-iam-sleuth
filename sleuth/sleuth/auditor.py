@@ -99,9 +99,7 @@ def print_key_report(users):
 
 
 def audit():
-    LOGGER.info('Sleuth running')
     iam_users = get_iam_users()
-
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
@@ -119,7 +117,7 @@ def audit():
     else:
         LOGGER.warn('Cannot disable AWS Keys, ENABLE_AUTO_EXPIRE set to False')
 
-    MSG_TITLE = os.environ.get('NOTIFICATION_TITLE', 'IAM Key Report')
+    MSG_TITLE = os.environ.get('NOTIFICATION_TITLE', 'AWS IAM Key Report')
     MSG_TEXT = os.environ.get('NOTIFICATION_TEXT', '')
 
     # lets assemble the SNS message

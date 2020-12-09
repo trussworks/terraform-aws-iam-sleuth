@@ -43,15 +43,11 @@ def handler(event, context):
     Incoming lambda handler
     """
 
-    LOGGER.info('handler fired')
-    LOGGER.info('Running aws-sleuth {}'.format(VERSION))
+    LOGGER.info('Running aws-iam-sleuth {}'.format(VERSION))
 
     audit()
 
-    body = {
-        "message": "Handler responding here",
-        "input": "event"
-    }
+    body = {}
     response = {
         "statusCode": 200,
         "body": json.dumps(body)
