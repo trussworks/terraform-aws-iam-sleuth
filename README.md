@@ -33,11 +33,22 @@ resource "aws_iam_user" "tfunke" {
 }
 ```
 
+#### Slack
+
 For a Slack user the standard SlackID is sufficient. For a group the `Slack` tag must have a value of the form `subteam-SP12345` (no `^` is allowed). More info on Slack group identifiers [here](https://api.slack.com/reference/surfaces/formatting#mentioning-groups).
 
 For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/user_hash_dump.py) script.
 
 If the information isn't specified an error will be thrown in the logs and the plain text username will be in the notification.
+
+Required environment variable to enabled Slack integration is `SLACK_URL`.
+
+
+#### SNS
+
+For SNS ensure the IAM role the lambda is running has permission to publish to the SNS topic.
+
+Required environment variable to enable SNS integration is `SNS_TOPIC`.
 
 
 ## Suggested Deployment Method
@@ -74,7 +85,6 @@ module "iam_sleuth" {
     SNS_TOPIC           = ""
     MSG_TITLE           = "Key Rotation Instructions"
     MSG_TEXT            = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
-    DEBUG               = False
   }
 
   tags = {
@@ -83,6 +93,22 @@ module "iam_sleuth" {
 
 }
 ```
+
+### Envars
+
+The behavior can be configured by environment variables.
+
+| Name | Description |
+|------|------------ |
+| ENABLE_AUTO_EXPIRE | Must be set to `true` for key disable action |
+| EXPIRATION_AGE | Age in days to disable a AWS key |
+| WARNING_AGE | Age in days of key to send notifications, must be lower than EXPIRATION_AGE |
+| MSG_TITLE | Title of the notification message |
+| MSG_TEXT | Instructions on key rotation |
+| SLACK_URL | Incoming webhook to send notifications to |
+| SNS_TOPIC | Topic to send a SNS formatted message to |
+| DEBUG | If present will log additional things |
+
 
 ## Screenshots
 
