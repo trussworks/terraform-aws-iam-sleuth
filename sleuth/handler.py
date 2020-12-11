@@ -36,22 +36,18 @@ LOGGER.addHandler(logHandler)
 
 from sleuth.auditor import audit
 
-VERSION = '0.9.0'
+VERSION = '1.1.0'
 
 def handler(event, context):
     """
     Incoming lambda handler
     """
 
-    LOGGER.info('handler fired')
-    LOGGER.info('Running aws-sleuth {}'.format(VERSION))
+    LOGGER.info('Running aws-iam-sleuth {}'.format(VERSION))
 
     audit()
 
-    body = {
-        "message": "Handler responding here",
-        "input": "event"
-    }
+    body = {}
     response = {
         "statusCode": 200,
         "body": json.dumps(body)

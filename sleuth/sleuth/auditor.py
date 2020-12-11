@@ -99,33 +99,31 @@ def print_key_report(users):
 
 
 def audit():
-    LOGGER.info('Sleuth running')
     iam_users = get_iam_users()
-
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
         u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']))
 
-    #mainly for debugging
-    print_key_report(iam_users)
+    if os.environ.get('DEBUG', False):
+        print_key_report(iam_users)
 
     # lets disabled expired keys and build list of old and expired for slack
-    if 'ENABLE_AUTO_EXPIRE' in os.environ and os.environ['ENABLE_AUTO_EXPIRE'] == 'true':
+    if os.environ.get('ENABLE_AUTO_EXPIRE', False) == 'true':
         for u in iam_users:
             for k in u.keys:
                 if k.audit_state == 'expire':
                     disable_key(k, u.username)
+    else:
+        LOGGER.warn('Cannot disable AWS Keys, ENABLE_AUTO_EXPIRE set to False')
 
-    if ('SNS_TOPIC' not in os.environ and 'SLACK_URL' not in os.environ) or (os.environ['SNS_TOPIC'] == "" and os.environ['SLACK_URL'] == ""):
-        LOGGER.warn('No notification settings set, please set SNS_TOPIC or SLACK_URL envar!')
+    MSG_TITLE = os.environ.get('NOTIFICATION_TITLE', 'AWS IAM Key Report')
+    MSG_TEXT = os.environ.get('NOTIFICATION_TEXT', '')
 
-    # lets assemble and send slack msg
-    if 'SNS_TOPIC' in os.environ and os.environ['SNS_TOPIC'] != "":
-        if 'SNS_MESSAGE' not in os.environ or os.environ['SNS_MESSAGE'] == "":
-            LOGGER.warn('No message set for sns topic, please set SNS_MESSAGE envar!')
-        LOGGER.info('Detected SNS setting so preparing and sending message via SNS')
-        send_to_slack, slack_msg = prepare_sns_message(iam_users)
+    # lets assemble the SNS message
+    if os.environ.get('SNS_TOPIC', None) is not None:
+        LOGGER.info('Detected SNS settings, preparing and sending message via SNS')
+        send_to_slack, slack_msg = prepare_sns_message(iam_users, MSG_TITLE, MSG_TEXT)
 
         if send_to_slack:
             send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
@@ -133,12 +131,11 @@ def audit():
             LOGGER.info('Nothing to report')
 
 
-    if 'SLACK_URL' in os.environ and 'SLACK_URL' != "":
-        if ('SLACK_MESSAGE_TITLE' not in os.environ or 'SLACK_MESSAGE_TEXT' not in os.environ) or (os.environ['SLACK_MESSAGE_TITLE'] == "" or os.environ['SLACK_MESSAGE_TEXT'] == ""):
-            LOGGER.warn('No message set for slack, please set SLACK_MESSAGE_TILE and SLACK_MESSAGE_TEXT envars!')
-        LOGGER.info('Using direct Slack API')
+    # lets assemble and send Slack msg
+    if os.environ.get('SLACK_URL', None) is not None:
+        LOGGER.info('Detected Slack settings, preparing and sending message via Slack API')
         # lets assemble the slack message
-        send_to_slack, slack_msg = prepare_slack_message(iam_users)
+        send_to_slack, slack_msg = prepare_slack_message(iam_users, MSG_TITLE, MSG_TEXT)
 
         if send_to_slack:
             send_slack_message(os.environ['SLACK_URL'], slack_msg)
