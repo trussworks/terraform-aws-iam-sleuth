@@ -55,21 +55,21 @@ class TestFormatSlackID():
 
     def test_sns_message_customization(self, monkeypatch):
         """Test that the sns message can be customized"""
-        custom_msg = 'This is the SNS message\nboop boop'
-        monkeypatch.setenv('SNS_MESSAGE', custom_msg)
+        title = 'This is the SNS message'
+        addltext = 'boop boop'
 
-        send_to_slack, msg = prepare_sns_message(users)
-        assert custom_msg in msg
+        send_to_sns, msg = prepare_sns_message(users, title, addltext)
+        assert title in msg
+        assert addltext in msg
 
     def test_slack_message_customization(self, monkeypatch):
         """Test that the slack message can be customized"""
-        custom_msg_title = 'SLACK TITLE'
-        custom_msg = 'Slack content'
-        monkeypatch.setenv('SLACK_MESSAGE_TITLE', custom_msg_title)
-        monkeypatch.setenv('SLACK_MESSAGE_TEXT', custom_msg)
+        title = 'SLACK TITLE'
+        addltext = 'Slack content'
 
-        send_to_slack, msg = prepare_slack_message(users)
+        send_to_slack, msg = prepare_slack_message(users, title, addltext)
+
         assert len(msg['attachments']) == 3
-        last_attachment = msg['attachments'][2]
-        assert last_attachment['title'] == custom_msg_title
-        assert last_attachment['text'] == custom_msg
+        last_attachment = msg['attachments'][0]
+        assert last_attachment['title'] == title
+        assert last_attachment['text'] == addltext
