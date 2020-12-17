@@ -3,6 +3,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2020-12-11
+
+### Added
+
+- Simple example of IAM Sleuth deployment
+- Terratest to verify terraform setup
+
+### Fixed
+
+- Few erranoues python tests fixed
+
 ## [1.1.0] - 2020-11-12
 
 ### Added
