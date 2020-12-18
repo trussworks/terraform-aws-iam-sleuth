@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 - Simple example of IAM Sleuth deployment
 - Terratest to verify related terraform code
 
+### Changed
+
+- make file test target to include running of terratest
+
 ### Fixed
 
 - Few erroneous python tests fixed
