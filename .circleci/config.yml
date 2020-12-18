@@ -102,8 +102,8 @@ workflows:
           context:
           - org-global
       - terratest:
-        context:
-        - org-global
+          context:
+          - org-global
 
   release:
     jobs:
