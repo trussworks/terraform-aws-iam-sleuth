@@ -25,6 +25,7 @@ def get_iam_key_info(user):
     list (Key): Return list of keys for a single user
     """
     from sleuth.auditor import Key
+    keys = []
     key_info = IAM.list_access_keys(UserName=user.username)
     for k in key_info['AccessKeyMetadata']:
         access_date=IAM.get_access_key_last_used(AccessKeyId=k['AccessKeyId'])
