@@ -16,47 +16,57 @@ class Key():
     key_id = ""
     created = None
     status = ""
+    last_used = None
     audit_state = None
 
-    age = 0
+    creation_age = 0
+    access_age = 0
     valid_for = 0
 
-    def __init__(self, username, key_id, status, created):
+    def __init__(self, username, key_id, status, created, last_used):
         self.username = username
         self.key_id = key_id
         self.status = status
         self.created = created
+        self.last_used = last_used
 
-        self.age = (dt.datetime.now(dt.timezone.utc) - self.created).days
+        self.creation_age = (dt.datetime.now(dt.timezone.utc) - self.created).days
+        self.access_age = (dt.datetime.now(dt.timezone.utc) - self.last_used).days
 
-    def audit(self, rotate_age, expire_age):
+    def audit(self, rotate_age, expire_age, max_last_used_age):
         """
-        Audits the key and sets the status state based on key age
+        Audits the key and sets the status state based on key creation age and last used age
 
-        Note if the key is below rotate the audit_state=good. If the key is disabled will be marked as disabled.
+        Note if the key is below rotate or last used age, the audit_state=good.
+        If the key is disabled will be marked as disabled.
 
         Parameters:
         rotate (int): Age key must be before audit_state=old
         expire (int): Age key must be before audit_state=expire
+        last_used_age (int): Age of last key usage must be before audit_state=expire
 
         Returns:
         None
         """
         assert(rotate_age < expire_age)
+        assert(max_last_used_age <= expire_age)
 
         # set the valid_for in the object
-        self.valid_for = expire_age - self.age
+        self.valid_for = min(expire_age - self.creation_age, max_last_used_age)
 
         # lets audit the age
-        if self.age < rotate_age:
-            self.audit_state = 'good'
-        if self.age >= rotate_age and self.age < expire_age:
-            self.audit_state = 'old'
-        if self.age >= expire_age:
+        if self.creation_age >= expire_age:
             self.audit_state = 'expire'
+        elif self.access_age >= max_last_used_age:
+            self.audit_state = 'expire'
+        elif self.creation_age >= rotate_age and self.creation_age < expire_age:
+            self.audit_state = 'old'
+        elif self.creation_age < rotate_age:
+            self.audit_state = 'good'
+
+        # lets audit the status
         if self.status == 'Inactive' and os.environ['ENABLE_AUTO_EXPIRE'] == 'true':
             self.audit_state = 'disabled'
-
 
 class User():
     username = ""
@@ -92,7 +102,7 @@ def print_key_report(users):
                 u.slack_id,
                 k.key_id,
                 k.audit_state,
-                k.age
+                k.creation_age
             ])
 
     print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Age in Days']))
@@ -103,7 +113,7 @@ def audit():
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
-        u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']))
+        u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ['LAST_USED_AGE']))
 
     if os.environ.get('DEBUG', False):
         print_key_report(iam_users)
