@@ -106,6 +106,7 @@ The behavior can be configured by environment variables.
 | ENABLE_AUTO_EXPIRE | Must be set to `true` for key disable action |
 | EXPIRATION_AGE | Age of key creation (in days) to disable a AWS key |
 | WARNING_AGE | Age of key creation (in days) to send notifications, must be lower than EXPIRATION_AGE |
+| LAST_USED_AGE | Age of last key usage (in days) to send notifications, must be lower than or equal to EXPIRATION_AGE |
 | MSG_TITLE | Title of the notification message |
 | MSG_TEXT | Instructions on key rotation |
 | SLACK_URL | Incoming webhook to send notifications to |
