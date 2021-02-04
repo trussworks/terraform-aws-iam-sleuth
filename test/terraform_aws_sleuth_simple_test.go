@@ -48,6 +48,10 @@ func TestTerraformSimpleSanityCheck(t *testing.T) {
 	// lets try to invoke the lambda to ensure proper setup
 	_, err := aws.InvokeFunctionE(t, awsRegion, "iam-sleuth-test", FunctionPayload{ShouldFail: false, Echo: "hi!"})
 
+	// Sleep here to let all the lambda logs in flight write to log group.
+	// Failing to sleep here will recreate the log group after tf destroy
+	time.Sleep(60 * time.Second)
+
 	// Function-specific errors have their own special return, should be nil
 	functionError, ok := err.(*aws.FunctionError)
 	require.False(t, ok)
