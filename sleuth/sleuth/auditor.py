@@ -65,7 +65,7 @@ class Key():
             self.audit_state = 'good'
 
         # lets audit the status
-        if self.status == 'Inactive' and os.environ['ENABLE_AUTO_EXPIRE'] == 'true':
+        if self.status == 'Inactive' and os.environ.get('ENABLE_AUTO_EXPIRE', False) == 'true':
             self.audit_state = 'disabled'
 
 class User():
@@ -79,9 +79,9 @@ class User():
         self.username = username
         self.slack_id = slack_id
 
-    def audit(self, rotate=80, expire=90):
+    def audit(self, rotate=80, expire=90, last_used=90):
         for k in self.keys:
-            k.audit(rotate, expire)
+            k.audit(rotate, expire, last_used)
 
 def print_key_report(users):
     """Prints table of report
@@ -102,10 +102,11 @@ def print_key_report(users):
                 u.slack_id,
                 k.key_id,
                 k.audit_state,
-                k.creation_age
+                k.creation_age,
+                k.access_age
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Age in Days']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Age in Days', 'Last Access Age']))
 
 
 def audit():
@@ -113,7 +114,8 @@ def audit():
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
-        u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ['LAST_USED_AGE']))
+        # Do not require last used age, set to expiration age as default
+        u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ.get('LAST_USED_AGE', os.environ['EXPIRATION_AGE'])))
 
     if os.environ.get('DEBUG', False):
         print_key_report(iam_users)
