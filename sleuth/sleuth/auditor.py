@@ -52,7 +52,7 @@ class Key():
         assert(max_last_used_age <= expire_age)
 
         # set the valid_for in the object
-        self.valid_for = min(expire_age - self.creation_age, max_last_used_age)
+        self.valid_for = expire_age - self.creation_age
 
         # lets audit the age
         if self.creation_age >= expire_age:
