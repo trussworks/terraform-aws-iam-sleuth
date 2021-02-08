@@ -12,7 +12,9 @@ An auditing tool for AWS keys that audits, alerts, and disable keys if not withi
 
 Sleuth runs periodically, normally once a day in the middle of business hours. Sleuth does the following:
 
-- Inspect each Access Key based on set age threshold (default 90 days)
+- Inspect each Access Key based on:
+  - set creation age threshold (default 90 days)
+  - set last accessed age threshold (optional, set to creation age threshold as default)
 - If Access Key is approaching threshold will ping user with a reminder to cycle key
 - If key age is at or over threshold will disable Access Key along with a final notice
 
@@ -81,6 +83,7 @@ module "iam_sleuth" {
     ENABLE_AUTO_EXPIRE  = "false"
     EXPIRATION_AGE      = 90
     WARNING_AGE         = 50
+    LAST_USED_AGE       = 30
     SLACK_URL           = data.aws_ssm_parameter.slack_url.value
     SNS_TOPIC           = ""
     MSG_TITLE           = "Key Rotation Instructions"
@@ -101,8 +104,9 @@ The behavior can be configured by environment variables.
 | Name | Description |
 |------|------------ |
 | ENABLE_AUTO_EXPIRE | Must be set to `true` for key disable action |
-| EXPIRATION_AGE | Age in days to disable a AWS key |
-| WARNING_AGE | Age in days of key to send notifications, must be lower than EXPIRATION_AGE |
+| EXPIRATION_AGE | Age of key creation (in days) to disable a AWS key |
+| WARNING_AGE | Age of key creation (in days) to send notifications, must be lower than EXPIRATION_AGE |
+| LAST_USED_AGE | OPTIONAL, defaults to EXPIRATION_AGE, Age of last key usage (in days) to send notifications, must be lower than or equal to EXPIRATION_AGE |
 | MSG_TITLE | Title of the notification message |
 | MSG_TEXT | Instructions on key rotation |
 | SLACK_URL | Incoming webhook to send notifications to |

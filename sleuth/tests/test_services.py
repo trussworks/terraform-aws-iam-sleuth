@@ -7,11 +7,12 @@ from sleuth.services import format_slack_id, prepare_sns_message, prepare_slack_
 from sleuth.auditor import Key, User
 
 created = datetime.datetime(2019, 1, 1, tzinfo=datetime.timezone.utc)
+lastused = created = datetime.datetime(2019, 1, 3, tzinfo=datetime.timezone.utc)
 user1 = User('user1', 'slackuser1', 'U12345')
 user2 = User('user1', 'slackuser1', 'U67890')
-key1 = Key('user1', 'asdfksakfa', 'Active', created)
+key1 = Key('user1', 'asdfksakfa', 'Active', created, lastused)
 key1.audit_state = 'old'
-key2 = Key('user2', 'ldasfkk', 'Active', created)
+key2 = Key('user2', 'ldasfkk', 'Active', created, lastused)
 key2.audit_state = 'expire'
 user1.keys = [key1]
 user2.keys = [key2]
