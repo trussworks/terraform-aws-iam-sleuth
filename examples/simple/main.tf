@@ -19,7 +19,7 @@ module "iam_sleuth" {
   github_filename = "deployment.zip"
   github_release  = "v1.2.0"
 
-  validation_sha = "37d691c49537014f2c38a7202e65e526bbd157d51e00c02b9fc8365c57d02493"
+  validation_sha = "e828dc6992c986091631de26f2fca5ea700d375b25e4482b8db7366028445852"
 
   source_types = ["events"]
   source_arns  = [aws_cloudwatch_event_rule.lambda_rule_trigger.arn]
