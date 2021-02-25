@@ -111,7 +111,9 @@ def get_iam_users():
                 LOGGER.info('IAM User: {} is missing Slack tag!'.format(u['UserName']))
                 # since no slack id, lets fill in the username so at least we know the account
                 tags['Slack'] = u['UserName']
-            user = User(u['UserId'], u['UserName'], tags['Slack'])
+            if 'KeyAutoExpire' not in tags:
+                tags['KeyAutoExpire'] = True
+            user = User(u['UserId'], u['UserName'], tags['Slack'], tags['KeyAutoExpire'])
             user.keys = get_iam_key_info(user)
             users.append(user)
 
