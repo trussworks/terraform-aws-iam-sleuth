@@ -17,6 +17,7 @@ Sleuth runs periodically, normally once a day in the middle of business hours. S
   - set last accessed age threshold (optional, set to creation age threshold as default)
 - If Access Key is approaching threshold will ping user with a reminder to cycle key
 - If key age is at or over threshold will disable Access Key along with a final notice
+- If user has special KeyAutoExpire tag set to False, the key will not be auto-expired
 
 Notifications can be sent directly to Slack using a V1 token or through SNS Topic.
 
