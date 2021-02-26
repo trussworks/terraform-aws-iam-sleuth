@@ -112,7 +112,7 @@ def get_iam_users():
                 # since no slack id, lets fill in the username so at least we know the account
                 tags['Slack'] = u['UserName']
             if 'KeyAutoExpire' not in tags:
-                tags['KeyAutoExpire'] = True
+                tags['KeyAutoExpire'] = 'True'
             user = User(u['UserId'], u['UserName'], tags['Slack'], tags['KeyAutoExpire'])
             user.keys = get_iam_key_info(user)
             users.append(user)
