@@ -103,12 +103,13 @@ def print_key_report(users):
                 u.username,
                 u.slack_id,
                 k.key_id,
+                u.auto_expire,
                 k.audit_state,
                 k.creation_age,
                 k.access_age
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Age in Days', 'Last Access Age']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'AutoExpire', 'Status', 'Age in Days', 'Last Access Age']))
 
 
 def audit():
@@ -117,7 +118,7 @@ def audit():
     # lets audit keys so the ages and state are set
     for u in iam_users:
         # Do not audit keys that are set to not allow auto-expire
-        if u.auto_expire=='False':
+        if u.auto_expire.lower()=='false':
             LOGGER.info('{} key is set to not expire'.format(u.username))
             for k in u.keys:
                 k.audit_state='good'
