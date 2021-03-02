@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@0.3.2
+  python: circleci/python@1.3.2
 
 jobs:
   build:
@@ -52,17 +52,13 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - python/load-cache:
-          dependency-file: ./sleuth/requirements.txt
-          # The scheme here let's us bust the cache if python is upgraded or if we modify the requirements
-          key: pip-3.8.5-{{ checksum "./sleuth/requirements.txt" }}
-      - python/install-deps:
-          dependency-file: ./sleuth/requirements.txt
-      - python/save-cache:
-          dependency-file: ./sleuth/requirements.txt
-          key: pip-3.8.5-{{ checksum "./sleuth/requirements.txt" }}
-      - python/test:
-          pytest: true
+      - python/install-packages:
+          pip-dependency-file: ./sleuth/requirements.txt
+          pkg-manager: pip
+          include-python-in-cache-key: true
+      - run:
+          command: |
+            pytest
   terratest:
     docker:
     - auth:
