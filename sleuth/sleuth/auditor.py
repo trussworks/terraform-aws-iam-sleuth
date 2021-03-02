@@ -72,12 +72,14 @@ class User():
     username = ""
     user_id = ""
     slack_id = ""
+    auto_expire = ""
     keys = []
 
-    def __init__(self, user_id, username, slack_id=None):
+    def __init__(self, user_id, username, slack_id=None, auto_expire=None):
         self.user_id = user_id
         self.username = username
         self.slack_id = slack_id
+        self.auto_expire = auto_expire
 
     def audit(self, rotate=80, expire=90, last_used=90):
         for k in self.keys:
@@ -101,12 +103,13 @@ def print_key_report(users):
                 u.username,
                 u.slack_id,
                 k.key_id,
+                u.auto_expire,
                 k.audit_state,
                 k.creation_age,
                 k.access_age
             ])
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'Status', 'Age in Days', 'Last Access Age']))
+    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'AutoExpire', 'Status', 'Age in Days', 'Last Access Age']))
 
 
 def audit():
@@ -114,8 +117,14 @@ def audit():
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
-        # Do not require last used age, set to expiration age as default
-        u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ.get('LAST_USED_AGE', os.environ['EXPIRATION_AGE'])))
+        # Do not audit keys that are set to not allow auto-expire
+        if u.auto_expire.lower()=='false':
+            LOGGER.info('{} key is set to not expire'.format(u.username))
+            for k in u.keys:
+                k.audit_state='good'
+        else:
+            # Do not require last used age, set to expiration age as default
+            u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ.get('LAST_USED_AGE', os.environ['EXPIRATION_AGE'])))
 
     if os.environ.get('DEBUG', False):
         print_key_report(iam_users)
