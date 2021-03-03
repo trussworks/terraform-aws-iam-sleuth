@@ -16,24 +16,24 @@ class Key():
     key_id = ""
     created = None
     status = ""
-    last_used = None
+    inactivity = None
     audit_state = None
 
     creation_age = 0
     access_age = 0
     valid_for = 0
 
-    def __init__(self, username, key_id, status, created, last_used):
+    def __init__(self, username, key_id, status, created, inactivity_age):
         self.username = username
         self.key_id = key_id
         self.status = status
         self.created = created
-        self.last_used = last_used
+        self.inactivity_age = inactivity_age
 
         self.creation_age = (dt.datetime.now(dt.timezone.utc) - self.created).days
-        self.access_age = (dt.datetime.now(dt.timezone.utc) - self.last_used).days
+        self.access_age = (dt.datetime.now(dt.timezone.utc) - self.inactivity_age).days
 
-    def audit(self, rotate_age, expire_age, max_last_used_age):
+    def audit(self, rotate_age, expire_age, max_inactivity_age, inactivity_warning_age):
         """
         Audits the key and sets the status state based on key creation age and last used age
 
@@ -43,13 +43,15 @@ class Key():
         Parameters:
         rotate (int): Age key must be before audit_state=old
         expire (int): Age key must be before audit_state=expire
-        last_used_age (int): Age of last key usage must be before audit_state=expire
+        inactivity_age (int): Age of last key usage must be before audit_state=expire
+        inactivity_warning_age (int): Age of last key usage must be before audit_state=old
 
         Returns:
         None
         """
         assert(rotate_age < expire_age)
-        assert(max_last_used_age <= expire_age)
+        assert(max_inactivity_age <= expire_age)
+        assert(inactivity_warning_age < max_inactivity_age)
 
         # set the valid_for in the object
         self.valid_for = expire_age - self.creation_age
@@ -57,9 +59,10 @@ class Key():
         # lets audit the age
         if self.creation_age >= expire_age:
             self.audit_state = 'expire'
-        elif self.access_age >= max_last_used_age:
+        elif self.access_age >= max_inactivity_age:
             self.audit_state = 'expire'
-        elif self.creation_age >= rotate_age and self.creation_age < expire_age:
+        # audit key age and last used age
+        elif (self.creation_age >= rotate_age and self.creation_age < expire_age) or (self.access_age >= inactivity_warning_age and self.access_age < max_inactivity_age):
             self.audit_state = 'old'
         elif self.creation_age < rotate_age:
             self.audit_state = 'good'
@@ -81,9 +84,9 @@ class User():
         self.slack_id = slack_id
         self.auto_expire = auto_expire
 
-    def audit(self, rotate=80, expire=90, last_used=90):
+    def audit(self, rotate=80, expire=90, inactivity=90, inactivity_warn=80):
         for k in self.keys:
-            k.audit(rotate, expire, last_used)
+            k.audit(rotate, expire, inactivity, inactivity_warn)
 
 def print_key_report(users):
     """Prints table of report
@@ -115,6 +118,10 @@ def print_key_report(users):
 def audit():
     iam_users = get_iam_users()
 
+    # Check for optional env vars
+    if os.environ.get('INACTIVITY_AGE') and not os.environ.get('INACTIVITY_WARNING_AGE'):
+        raise RuntimeError('Must set env var INACTIVITY_WARNING_AGE if INACTIVITY_AGE is set')
+
     # lets audit keys so the ages and state are set
     for u in iam_users:
         # Do not audit keys that are set to not allow auto-expire
@@ -124,7 +131,7 @@ def audit():
                 k.audit_state='good'
         else:
             # Do not require last used age, set to expiration age as default
-            u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ.get('LAST_USED_AGE', os.environ['EXPIRATION_AGE'])))
+            u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ.get('INACTIVITY_AGE', os.environ['EXPIRATION_AGE'])), int(os.environ.get('INACTIVITY_WARNING_AGE', os.environ['WARNING_AGE'])))
 
     if os.environ.get('DEBUG', False):
         print_key_report(iam_users)
