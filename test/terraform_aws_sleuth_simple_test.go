@@ -64,6 +64,8 @@ func TestTerraformSimpleSanityCheck(t *testing.T) {
 	assert.Equal(t, *resp["ENABLE_AUTO_EXPIRE"], "false")
 	assert.Equal(t, *resp["WARNING_AGE"], "85")
 	assert.Equal(t, *resp["EXPIRATION_AGE"], "90")
+	assert.Equal(t, *resp["INACTIVITY_AGE"], "30")
+	assert.Equal(t, *resp["INACTIVITY_WARNING_AGE"], "20")
 }
 
 type FunctionPayload struct {

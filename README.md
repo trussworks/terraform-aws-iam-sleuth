@@ -84,7 +84,8 @@ module "iam_sleuth" {
     ENABLE_AUTO_EXPIRE  = "false"
     EXPIRATION_AGE      = 90
     WARNING_AGE         = 50
-    LAST_USED_AGE       = 30
+    INACTIVITY_AGE       = 30
+    INACTIVITY_WARNING_AGE = 20
     SLACK_URL           = data.aws_ssm_parameter.slack_url.value
     SNS_TOPIC           = ""
     MSG_TITLE           = "Key Rotation Instructions"
@@ -107,7 +108,8 @@ The behavior can be configured by environment variables.
 | ENABLE_AUTO_EXPIRE | Must be set to `true` for key disable action |
 | EXPIRATION_AGE | Age of key creation (in days) to disable a AWS key |
 | WARNING_AGE | Age of key creation (in days) to send notifications, must be lower than EXPIRATION_AGE |
-| LAST_USED_AGE | OPTIONAL, defaults to EXPIRATION_AGE, Age of last key usage (in days) to send notifications, must be lower than or equal to EXPIRATION_AGE |
+| INACTIVITY_AGE | OPTIONAL, defaults to EXPIRATION_AGE, Age of last key usage (in days) to disable AWS key, must be lower than or equal to EXPIRATION_AGE |
+| INACTIVITY_WARNING_AGE | REQUIRED IF INACTIVITY_AGE is set, otherwise defaults to WARNING, Age of last key usage (in days) to send notifications, must be lower than INACTIVITY_AGE |
 | MSG_TITLE | Title of the notification message |
 | MSG_TEXT | Instructions on key rotation |
 | SLACK_URL | Incoming webhook to send notifications to |

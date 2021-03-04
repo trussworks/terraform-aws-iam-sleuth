@@ -29,7 +29,8 @@ module "iam_sleuth" {
     ENABLE_AUTO_EXPIRE  = false
     EXPIRATION_AGE      = 90
     WARNING_AGE         = 85
-    LAST_USED_AGE       = 30
+    INACTIVITY_AGE       = 30
+    INACTIVITY_WARNING_AGE       = 20
     MSG_TITLE           = "Key Rotation Instructions"
     MSG_TEXT            = "Please run key rotation tool!"
   }
