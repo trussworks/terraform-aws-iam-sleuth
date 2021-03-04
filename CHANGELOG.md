@@ -3,6 +3,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2021-03-04
+
+### Added
+
+- Warning message for keys expiring due to inactivity, INACTIVITY_WARNING_AGE
+- Test for new variable
+
+### Changed
+
+- Change name of inactivity age variable to INACTIVITY_AGE
+
+## [1.2.0] - 2021-02-08
+
+### Added
+
+- Auto-expire access keys if they have not been used in X number of days
+- Tests for new variable
+
+## [1.1.2] - 2021-01-07
+
+### Changed
+
+- Updating CircleCI image
+- Precommit plugins
+- Upgrade TF providers
+- Allow for TF 0.14
+- Cleanup circleci yaml
+
 ## [1.1.1] - 2020-12-11
 
 ### Added
