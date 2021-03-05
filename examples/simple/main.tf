@@ -17,7 +17,7 @@ module "iam_sleuth" {
 
   github_project  = "trussworks/aws-iam-sleuth"
   github_filename = "deployment.zip"
-  github_release  = "v1.2.0"
+  github_release  = "v1.2.1"
 
   validation_sha = "e828dc6992c986091631de26f2fca5ea700d375b25e4482b8db7366028445852"
 
