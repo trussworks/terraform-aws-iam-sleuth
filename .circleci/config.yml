@@ -114,8 +114,5 @@ workflows:
       - terratest:
           context:
           - org-global
-          filters:
-            branches:
-              ignore: /^.*/
-            tags:
-              only: /^v.*/
+          requires:
+            - release
