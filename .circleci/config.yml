@@ -98,13 +98,18 @@ workflows:
       - python-test:
           context:
           - org-global
-      - terratest:
-          context:
-          - org-global
 
   release:
     jobs:
       - release:
+          context:
+          - org-global
+          filters:
+            branches:
+              ignore: /^.*/
+            tags:
+              only: /^v.*/
+      - terratest:
           context:
           - org-global
           filters:
