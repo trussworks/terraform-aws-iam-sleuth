@@ -31,8 +31,8 @@ func TestTerraformSimpleSanityCheck(t *testing.T) {
 	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/simple")
 	awsRegion := "us-east-2"
 
-	github_release := os.Getenv("RELEASE_TAG")    //"v1.2.1"
-	validation_sha := os.Getenv("VALIDATION_SHA") //"2c307bab9f2e055dd4ac10cce78413598ac07a3c8739e540c3e396cef8905077"
+	github_release := os.Getenv("RELEASE_TAG")
+	validation_sha := os.Getenv("VALIDATION_SHA")
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: tempTestFolder,

@@ -77,6 +77,8 @@ jobs:
           export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq .Credentials.AccessKeyId | xargs)
           export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey | xargs)
           export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken | xargs)
+          export RELEASE_TAG=<< pipeline.git.tag >>
+          export VALIDATION_SHA=$(cut -f1 -d' ' checksums.txt)
           make test
         name: Assume role, run pre-commit and run terratest
     - save_cache:
