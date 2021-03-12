@@ -17,9 +17,9 @@ module "iam_sleuth" {
 
   github_project  = "trussworks/aws-iam-sleuth"
   github_filename = "deployment.zip"
-  github_release  = "v1.2.1"
+  github_release  = var.github_release
 
-  validation_sha = "e828dc6992c986091631de26f2fca5ea700d375b25e4482b8db7366028445852"
+  validation_sha = var.validation_sha
 
   source_types = ["events"]
   source_arns  = [aws_cloudwatch_event_rule.lambda_rule_trigger.arn]
