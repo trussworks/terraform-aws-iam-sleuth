@@ -33,11 +33,11 @@ jobs:
           name: Move checksum to workspace
           command: |
             mkdir -p workspace
-            cp checksum.txt workspace/checksum.txt
+            cp checksums.txt workspace/checksums.txt
       - persist_to_workspace:
           root: workspace
           paths:
-            - checksum.txt
+            - checksums.txt
   validate:
     docker:
       - image: trussworks/circleci:efb1042e31538677779971798e0912390f699e72
