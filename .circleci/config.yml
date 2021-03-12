@@ -29,6 +29,15 @@ jobs:
       - run:
           name: Release
           command: scripts/release $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME << pipeline.git.tag >>
+      - run:
+          name: Move checksum to workspace
+          command: |
+            mkdir -p workspace
+            cp checksum.txt workspace/checksum.txt
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - checksum.txt
   validate:
     docker:
       - image: trussworks/circleci:efb1042e31538677779971798e0912390f699e72
@@ -71,6 +80,8 @@ jobs:
         keys:
         - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
         - go-mod-sources-v1-{{ checksum "go.sum" }}
+    - attach_workspace:
+        at: /tmp/workspace
     - run:
         command: |
           temp_role=$(aws sts assume-role --role-arn arn:aws:iam::313564602749:role/circleci --role-session-name circleci)
@@ -78,7 +89,7 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey | xargs)
           export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken | xargs)
           export RELEASE_TAG=<< pipeline.git.tag >>
-          export VALIDATION_SHA=$(cut -f1 -d' ' checksums.txt)
+          export VALIDATION_SHA=$(cut -f1 -d' ' /tmp/workspace/checksums.txt)
           make test
         name: Assume role, run pre-commit and run terratest
     - save_cache:
