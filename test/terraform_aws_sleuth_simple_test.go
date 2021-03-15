@@ -1,6 +1,7 @@
 package test
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -30,9 +31,15 @@ func TestTerraformSimpleSanityCheck(t *testing.T) {
 	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/simple")
 	awsRegion := "us-east-2"
 
+	github_release := os.Getenv("RELEASE_TAG")
+	validation_sha := os.Getenv("VALIDATION_SHA")
+
 	terraformOptions := &terraform.Options{
 		TerraformDir: tempTestFolder,
-		Vars:         map[string]interface{}{},
+		Vars: map[string]interface{}{
+			"github_release": github_release,
+			"validation_sha": validation_sha,
+		},
 		EnvVars: map[string]string{
 			"AWS_DEFAULT_REGION": awsRegion,
 			"AWS_REGION":         awsRegion,
