@@ -124,7 +124,7 @@ def print_key_report(users):
 
 def audit():
     iam_users = get_iam_users()
-    print(iam_users)
+
     # Check for optional env vars
     if (os.environ.get('INACTIVITY_AGE') and not os.environ.get('INACTIVITY_WARNING_AGE')) or (os.environ.get('INACTIVITY_WARNING_AGE') and not os.environ.get('INACTIVITY_AGE')):
         raise RuntimeError('Must set env var INACTIVITY_WARNING_AGE and INACTIVITY_AGE together')
