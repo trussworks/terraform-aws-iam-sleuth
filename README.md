@@ -84,12 +84,14 @@ module "iam_sleuth" {
     ENABLE_AUTO_EXPIRE  = "false"
     EXPIRATION_AGE      = 90
     WARNING_AGE         = 50
+    EXPIRE_NOTIFICATION_TITLE           = "Key Rotation Instructions"
+    EXPIRE_NOTIFICATION_TEXT            = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
     INACTIVITY_AGE       = 30
     INACTIVITY_WARNING_AGE = 20
+    INACTIVE_NOTIFICATION_TITLE         = "Key Usage Instructions to prevent key auto-disable"
+    INACTIVE_NOTIFICATION_TEXT          = "Please run.\n ```aws-vault login AWS-PROFILE```"
     SLACK_URL           = data.aws_ssm_parameter.slack_url.value
     SNS_TOPIC           = ""
-    MSG_TITLE           = "Key Rotation Instructions"
-    MSG_TEXT            = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
   }
 
   tags = {
@@ -107,11 +109,13 @@ The behavior can be configured by environment variables.
 |------|------------ |
 | ENABLE_AUTO_EXPIRE | Must be set to `true` for key disable action |
 | EXPIRATION_AGE | Age of key creation (in days) to disable a AWS key |
+| EXPIRE_NOTIFICATION_TITLE | Title of the notification message for keys expiring due to creation age|
+| EXPIRE_NOTIFICATION_TEXT | Instructions on key rotation |
 | WARNING_AGE | Age of key creation (in days) to send notifications, must be lower than EXPIRATION_AGE |
 | INACTIVITY_AGE | OPTIONAL, defaults to EXPIRATION_AGE, Age of last key usage (in days) to disable AWS key, must be lower than or equal to EXPIRATION_AGE |
 | INACTIVITY_WARNING_AGE | REQUIRED IF INACTIVITY_AGE is set, otherwise defaults to WARNING, Age of last key usage (in days) to send notifications, must be lower than INACTIVITY_AGE |
-| MSG_TITLE | Title of the notification message |
-| MSG_TEXT | Instructions on key rotation |
+| INACTIVE_NOTIFICATION_TITLE | Title of the notification message for keys expiring due to inactivity |
+| INACTIVE_NOTIFICATION_TEXT | Instructions on key usage to prevent expiration due to inactivity |
 | SLACK_URL | Incoming webhook to send notifications to |
 | SNS_TOPIC | Topic to send a SNS formatted message to |
 | DEBUG | If present will log additional things |
@@ -152,8 +156,81 @@ pip install -r ./sleuth/requirements.txt
 
 ### Testing
 
-To test the Python app:
+All following steps assume you have activated the virtual environment from the previous step.
+
+To run the Python app unittests:
 
 ```sh
 pytest
 ```
+
+To run the python app locally, using trussworks-ci as example account:
+
+1. Login to the trussworks-ci account
+
+   ```shell
+   aws-vault login trussworks-ci
+   ```
+
+1. Create test user(s), giving them access keys and optional KeyAutoExire tag
+
+   | UserName     | Slack ID     | Key ID               | AutoExpire |
+   |--------------|--------------|----------------------|------------|
+   | sleuth-test1 | sleuth-test1 | KEYID1 | FALSE      |
+   | sleuth-test2 | sleuth-test2 | KEYID2 | TRUE       |
+
+1. In the CLI, move to the sleuth subdirectory:
+
+   ```shell
+   cd /path/to/trussworks/terraform-aws-iam-sleuth/sleuth
+   ```
+
+1. Export the relevant variables:
+
+   To test the warnings for creation date expiration, considering a key that was made today, use:
+
+   ```shell
+   export DEBUG=true
+   export SLACK_URL=test
+   export EXPIRATION_AGE=90
+   export WARNING_AGE=0
+   ```
+
+   To test the warnings for inactivity expiration, considering a key that was made today, use:
+
+   ```shell
+   export DEBUG=true
+   export SLACK_URL=test
+   export EXPIRATION_AGE=90
+   export WARNING_AGE=1
+   export INACTIVITY_AGE=30
+   export INACTIVITY_WARNING_AGE=0
+   ```
+
+    NOTE: Creation age expiration takes precedent over activity age, so setting both `WARNING_AGE=0` and `INACTIVITY_WARNING_AGE=0` will cause only the creation date expiration warning to appear.
+
+1. Run the app
+
+   ```shell
+   aws-vault exec trussworks-ci -- python handler.py
+   ```
+
+- Example DEBUG output for creation age, notice the 'old' status:
+
+   | UserName     | Slack ID     | Key ID               | AutoExpire | Status | Age in Days | Last Access Age |
+   |--------------|--------------|----------------------|------------|--------|-------------|-----------------|
+   | sleuth-test1 | sleuth-test1 | KEYID1 | FALSE      | good   | 0           | 0               |
+   | sleuth-test2 | sleuth-test2 | KEYID2 | TRUE       | old    | 0           | 0               |
+
+- Example DEBUG output for inactivity age, notice the 'stagnant' status:
+
+   | UserName     | Slack ID     | Key ID               | AutoExpire | Status | Age in Days | Last Access Age |
+   |--------------|--------------|----------------------|------------|--------|-------------|-----------------|
+   | sleuth-test1 | sleuth-test1 | KEYID1 | FALSE      | good   | 0           | 0               |
+   | sleuth-test2 | sleuth-test2 | KEYID2 | TRUE       | stagnant    | 0           | 0               |
+
+- By exporting the SLACK_URL=test in addition to DEBUG=true, you can also view the slack message output:
+
+  ```shell
+  slack message: {'attachments': [{'title': 'AWS IAM Key Inactivity Report', 'text': ''}, {'title': 'IAM users with access keys expiring due to inactivity. \n Please login to AWS to prevent key from being disabled', 'color': '#ffff00', 'fields': [{'title': 'Users', 'value': "sleuth-test2's key expires in 30 days due to inactivity."}]}]}
+  ```
