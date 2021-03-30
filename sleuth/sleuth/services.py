@@ -172,8 +172,6 @@ def send_sns_message(topic_arn, payload):
         LOGGER.error('Message could NOT be sent {}'.format(topic_arn))
 
 
-
-
 ###################
 # Slack
 ###################
@@ -190,7 +188,7 @@ def send_slack_message(webhook, payload):
         LOGGER.error(msg)
 
 
-def prepare_sns_message(users, title, addltext):
+def prepare_sns_message(users, exp_title, exp_addltext, stgn_title, stgn_addltext):
     """Prepares message for sending via SNS topic (plain text)
 
     Parameters:
@@ -202,19 +200,28 @@ def prepare_sns_message(users, title, addltext):
     bool: True if slack send, false if not
     dict: Message prepared for slack API
     """
-    msgs = []
+    exp_msgs = []
+    stgnt_msgs = []
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                msgs.append('{}\'s key expires in {} days.'.format(u.username, k.valid_for))
+                exp_msgs.append('{}\'s key expires in {} days due to creation age.'.format(u.username, k.creation_valid_for))
+            elif k.audit_state == 'stagnant':
+                stgnt_msgs.append('{}\'s key expires in {} days due to inactivity.'.format(u.username, k.activity_valid_for))
+            elif k.audit_state == 'expire':
+                exp_msgs.append('{}\'s key is disabled due to creation age.'.format(u.username))
+            elif k.audit_state == 'stagnant_expire':
+                stgnt_msgs.append('{}\'s key is disabled due to inactivity.'.format(u.username))
 
-            if k.audit_state == 'expire':
-                msgs.append('{}\'s key is disabled.'.format(u.username))
-
-    msg = '{}:\n{}\n{}'.format(title, addltext, "\n".join(msgs))
+    msg=''
+    #Only send titles/messages if there are users
+    if len(exp_msgs) > 0:
+        msg += '{}:\n{}\n{}\n'.format(exp_title, exp_addltext, "\n".join(exp_msgs))
+    if len(stgnt_msgs) > 0:
+        msg += '{}:\n{}\n{}\n'.format(stgn_title, stgn_addltext, "\n".join(stgnt_msgs))
 
     send_to_slack = False
-    if len(msgs) > 0:
+    if len(msg) > 0:
         send_to_slack = True
 
     if os.environ.get('DEBUG', False):
@@ -222,7 +229,7 @@ def prepare_sns_message(users, title, addltext):
 
     return send_to_slack, msg
 
-def prepare_slack_message(users, title, addltext):
+def prepare_slack_message(users, exp_title, exp_addltext, stgn_title, stgn_addltext):
     """Prepares message for sending via Slack webhook
 
     Parameters:
@@ -236,20 +243,24 @@ def prepare_slack_message(users, title, addltext):
     """
 
     old_msgs = []
+    stagnant_msgs = []
     expired_msgs = []
+    stagnant_expired_msgs = []
     for u in users:
         for k in u.keys:
             if k.audit_state == 'old':
-                old_msgs.append('{}\'s key expires in {} days.'.format(format_slack_id(u.slack_id, u.username),
-                                                                       k.valid_for))
-
-            if k.audit_state == 'expire':
-                expired_msgs.append('{}\'s key is disabled.'.format(format_slack_id(u.slack_id, u.username)))
-
-
+                old_msgs.append('{}\'s key expires in {} days due to creation age.'.format(format_slack_id(u.slack_id, u.username),
+                                                                       k.creation_valid_for))
+            elif k.audit_state == 'stagnant':
+                stagnant_msgs.append('{}\'s key expires in {} days due to inactivity.'.format(format_slack_id(u.slack_id, u.username),
+                                                                       k.activity_valid_for))
+            elif k.audit_state == 'expire':
+                expired_msgs.append('{}\'s key is disabled due to creation age.'.format(format_slack_id(u.slack_id, u.username)))
+            elif k.audit_state == 'stagnant_expire':
+                stagnant_expired_msgs.append('{}\'s key is disabled due to inactivity.'.format(format_slack_id(u.slack_id, u.username)))
 
     old_attachment = {
-        "title": "IAM users with access keys expiring",
+        "title": "IAM users with access keys expiring due to creation age",
         "color": "#ffff00", #yellow
         "fields": [
             {
@@ -259,8 +270,19 @@ def prepare_slack_message(users, title, addltext):
         ]
     }
 
+    stagnant_attachment = {
+        "title": "IAM users with access keys expiring due to inactivity. \n Please login to AWS to prevent key from being disabled",
+        "color": "#ffff00", #yellow
+        "fields": [
+            {
+                "title": "Users",
+                "value": "\n".join(stagnant_msgs),
+            }
+        ]
+    }
+
     expired_attachment = {
-        "title": "IAM users with disabled access keys",
+        "title": "IAM users with disabled access keys due to creation age",
         "color": "#ff0000", #red
         "fields": [
             {
@@ -270,11 +292,21 @@ def prepare_slack_message(users, title, addltext):
         ]
     }
 
-    main_attachment = {
-        "title": title,
-        "text": addltext
+    stagnant_expired_attachment = {
+        "title": "IAM users with disabled access keys due to inactivity",
+        "color": "#ff0000", #red
+        "fields": [
+            {
+                "title": "Users",
+                "value": "\n".join(stagnant_expired_msgs),
+            }
+        ]
     }
 
+    main_attachment = {
+        "title": exp_title,
+        "text": exp_addltext
+    }
 
     # include master one
     msg = {
@@ -282,9 +314,6 @@ def prepare_slack_message(users, title, addltext):
     }
 
     send_to_slack = False
-
-    # lets add the notif text
-    msg['attachments'].append(main_attachment)
 
     # only add the attachments that have users
     if len(old_msgs) > 0:
@@ -295,8 +324,24 @@ def prepare_slack_message(users, title, addltext):
         msg['attachments'].append(expired_attachment)
         send_to_slack = True
 
+    if len(stagnant_expired_msgs) > 0:
+        msg['attachments'].append(stagnant_expired_attachment)
+        send_to_slack = True
 
-    if os.environ.get('DEBUG', False):
-        print(msg)
+   # lets add the notif text if there are keys to rotate
+    if len(msg['attachments']) > 0 :
+        msg['attachments'].insert(0,main_attachment)
+
+    stgn_header = {
+        "title": stgn_title,
+        "text": stgn_addltext
+    }
+
+    #Then add any messages for inactivity
+    if len(stagnant_msgs) > 0:
+        # lets add the notif text if necessary
+        msg['attachments'].append(stgn_header)
+        msg['attachments'].append(stagnant_attachment)
+        send_to_slack = True
 
     return send_to_slack, msg
