@@ -3,6 +3,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2021-03-30
+
+### Added
+
+- New variables for INACTIVE_NOTIFICATION_TITLE and INACTIVE_NOTIFICATION_TEXT
+- Improved messaging for key expiration reasonings
+- Documentation for testing app locally
+- Required permission for iam:GetAccessKeyLastUsed
+
 ## [1.2.1] - 2021-03-04
 
 ### Added
