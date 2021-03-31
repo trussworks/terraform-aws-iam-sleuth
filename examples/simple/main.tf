@@ -58,6 +58,7 @@ data "aws_iam_policy_document" "basic_task_role_policy_doc" {
       "iam:UpdateAccessKey",
       "iam:ListAccessKeys",
       "iam:ListUserTags",
+      "iam:GetAccessKeyLastUsed",
     ]
 
     resources = ["arn:aws:iam::*:user/*"]

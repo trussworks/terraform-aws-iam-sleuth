@@ -30,7 +30,7 @@ class TestKey():
         last_used = datetime.datetime(2019, 1, 2, tzinfo=datetime.timezone.utc)
         key = Key('username', 'keyid', 'Active', created, last_used)
         key.audit(60, 80, 20, 10)
-        assert key.audit_state == 'old'
+        assert key.audit_state == 'stagnant'
 
     def test_old_expiration(self):
         """Key is past max expiration threshold, key is marked as expired"""
@@ -46,7 +46,7 @@ class TestKey():
         last_used = datetime.datetime(2019, 1, 2, tzinfo=datetime.timezone.utc)
         key = Key('username', 'keyid', 'Active', created, last_used)
         key.audit(60, 80, 10, 9)
-        assert key.audit_state == 'expire'
+        assert key.audit_state == 'stagnant_expire'
 
     def test_no_disable(self, monkeypatch):
         """Key is disabled AWS status of Inactive, but disabling is turned off so key remains audit state expire"""
@@ -67,7 +67,7 @@ class TestKey():
         key.audit(10, 11, 2, 1)
         assert key.audit_state == 'expire'
         key.audit(60, 80, 2, 1)
-        assert key.audit_state == 'expire'
+        assert key.audit_state == 'stagnant_expire'
 
     def test_disabled(self, monkeypatch):
         """Key is disabled AWS status of Inactive, key marked is disabled"""
