@@ -3,9 +3,9 @@ module github.com/trussworks/terraform-aws-iam-sleuth
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.44.83
+	github.com/aws/aws-sdk-go v1.44.86
 	github.com/gruntwork-io/terratest v0.40.20
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.5
 )
 
 require (
@@ -77,7 +77,7 @@ require (
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.20.6 // indirect
 	k8s.io/apimachinery v0.20.6 // indirect
 	k8s.io/client-go v0.20.6 // indirect
