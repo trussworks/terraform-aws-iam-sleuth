@@ -1,6 +1,6 @@
 attrs==22.1.0
 boto3==1.24.96
-botocore==1.27.58
+botocore==1.27.96
 certifi==2022.6.15
 chardet==3.0.4
 freezegun==1.2.2
