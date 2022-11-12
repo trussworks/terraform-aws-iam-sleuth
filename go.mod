@@ -3,7 +3,7 @@ module github.com/trussworks/terraform-aws-iam-sleuth
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.44.135
+	github.com/aws/aws-sdk-go v1.44.136
 	github.com/gruntwork-io/terratest v0.40.24
 	github.com/stretchr/testify v1.7.5
 )
