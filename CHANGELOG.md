@@ -1,9 +1,10 @@
 <!-- markdownlint-disable MD013 MD033 MD024  -->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.0] - 2021-03-30
+## \[1.3.0\] - 2021-03-30
 
 ### Added
 
@@ -12,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - Documentation for testing app locally
 - Required permission for iam:GetAccessKeyLastUsed
 
-## [1.2.1] - 2021-03-04
+## \[1.2.1\] - 2021-03-04
 
 ### Added
 
@@ -23,14 +24,14 @@ All notable changes to this project will be documented in this file.
 
 - Change name of inactivity age variable to INACTIVITY_AGE
 
-## [1.2.0] - 2021-02-08
+## \[1.2.0\] - 2021-02-08
 
 ### Added
 
 - Auto-expire access keys if they have not been used in X number of days
 - Tests for new variable
 
-## [1.1.2] - 2021-01-07
+## \[1.1.2\] - 2021-01-07
 
 ### Changed
 
@@ -40,7 +41,7 @@ All notable changes to this project will be documented in this file.
 - Allow for TF 0.14
 - Cleanup circleci yaml
 
-## [1.1.1] - 2020-12-11
+## \[1.1.1\] - 2020-12-11
 
 ### Added
 
@@ -55,7 +56,7 @@ All notable changes to this project will be documented in this file.
 
 - Few erroneous python tests fixed
 
-## [1.1.0] - 2020-11-12
+## \[1.1.0\] - 2020-11-12
 
 ### Added
 
@@ -70,13 +71,13 @@ All notable changes to this project will be documented in this file.
 
 - Requirement of Slack or SNS setting to run, Lambda can run without any notifications
 
-## [1.0.10] - 2020-11-12
+## \[1.0.10\] - 2020-11-12
 
 ### Added
 
 - Serveral git precommits (markdown, terraform, terraformd-docs etc)
 
-## [0.9.0] - 2020-03-28
+## \[0.9.0\] - 2020-03-28
 
 ### Added
 
@@ -91,7 +92,7 @@ All notable changes to this project will be documented in this file.
 
 - Deployment via Serverless framework
 
-## [0.8.0] - 2019-06-20
+## \[0.8.0\] - 2019-06-20
 
 ### Added
 

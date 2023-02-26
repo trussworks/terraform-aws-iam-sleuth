@@ -13,7 +13,7 @@ module "iam_sleuth" {
   timeout                = "500"
   role_policy_arns_count = 2
   role_policy_arns = [aws_iam_policy.sleuth_policy.arn,
-    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"]
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"]
 
   github_project  = "trussworks/aws-iam-sleuth"
   github_filename = "deployment.zip"
@@ -26,13 +26,13 @@ module "iam_sleuth" {
 
 
   env_vars = {
-    ENABLE_AUTO_EXPIRE  = false
-    EXPIRATION_AGE      = 90
-    WARNING_AGE         = 85
-    INACTIVITY_AGE       = 30
-    INACTIVITY_WARNING_AGE       = 20
-    MSG_TITLE           = "Key Rotation Instructions"
-    MSG_TEXT            = "Please run key rotation tool!"
+    ENABLE_AUTO_EXPIRE     = false
+    EXPIRATION_AGE         = 90
+    WARNING_AGE            = 85
+    INACTIVITY_AGE         = 30
+    INACTIVITY_WARNING_AGE = 20
+    MSG_TITLE              = "Key Rotation Instructions"
+    MSG_TEXT               = "Please run key rotation tool!"
   }
 }
 
@@ -40,12 +40,12 @@ module "iam_sleuth" {
 #
 # Cloudwatch Event
 #
- resource "aws_cloudwatch_event_rule" "lambda_rule_trigger" {
-   name        = "iam-sleuth-trigger"
-   description = "Trigger to audit IAM keys"
+resource "aws_cloudwatch_event_rule" "lambda_rule_trigger" {
+  name        = "iam-sleuth-trigger"
+  description = "Trigger to audit IAM keys"
 
-   schedule_expression = "cron(0 18 ? * MON-FRI *)"
- }
+  schedule_expression = "cron(0 18 ? * MON-FRI *)"
+}
 
 #
 # IAM
