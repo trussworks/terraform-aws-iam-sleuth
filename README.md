@@ -234,3 +234,29 @@ To run the python app locally, using trussworks-ci as example account:
   ```shell
   slack message: {'attachments': [{'title': 'AWS IAM Key Inactivity Report', 'text': ''}, {'title': 'IAM users with access keys expiring due to inactivity. \n Please login to AWS to prevent key from being disabled', 'color': '#ffff00', 'fields': [{'title': 'Users', 'value': "sleuth-test2's key expires in 30 days due to inactivity."}]}]}
   ```
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+No requirements.
+
+## Providers
+
+No providers.
+
+## Modules
+
+No modules.
+
+## Resources
+
+No resources.
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->

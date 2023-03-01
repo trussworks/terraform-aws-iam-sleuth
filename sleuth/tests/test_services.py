@@ -107,4 +107,3 @@ class TestFormatSlackID():
         assert msg['attachments'][4]['title'] == t2
         assert msg['attachments'][4]['text'] == tadd
         assert msg['attachments'][5]['title'] == stgn
-
