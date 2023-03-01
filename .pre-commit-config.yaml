@@ -29,10 +29,10 @@ repos:
     hooks:
       - id: markdownlint
 
-  - repo: https://github.com/detailyang/pre-commit-shell
-    rev: 1.0.5
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.2
     hooks:
-      - id: shell-lint
+      - id: shellcheck
 
   - repo: https://github.com/terraform-docs/terraform-docs
     rev: "v0.16.0"
