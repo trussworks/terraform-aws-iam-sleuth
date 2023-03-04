@@ -6,7 +6,7 @@ chardet==5.1.0
 freezegun==1.2.2
 idna==3.4
 jmespath==1.0.1
-more-itertools==9.0.0
+more-itertools==9.1.0
 packaging==23.0
 pluggy==1.0.0
 py==1.11.0
