@@ -27,9 +27,6 @@
       ]
     }
   ],
-  "schedule": [
-    "@daily"
-  ],
   "separateMinorPatch": false,
   "timezone": "America/Los_Angeles"
 }
