@@ -1,4 +1,5 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
   ],
@@ -24,26 +25,11 @@
       "reviewers": [
         "team:waddlers"
       ]
-    },
-    {
-      "automerge": true,
-      "description": "Group minor and patch updates into a single PR",
-      "groupName": "dependencies",
-      "managers": [
-        "terraform",
-        "pre-commit",
-        "dockerfile",
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ]
     }
   ],
   "schedule": [
-    "every weekend"
+    "every day"
   ],
-  "separateMinorPatch": true,
+  "separateMinorPatch": false,
   "timezone": "America/Los_Angeles"
 }
