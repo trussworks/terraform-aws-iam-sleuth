@@ -1,5 +1,5 @@
 attrs==23.1.0
-boto3==1.26.138
+boto3==1.26.139
 botocore==1.29.138
 certifi==2022.12.7
 chardet==5.1.0
