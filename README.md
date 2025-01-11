@@ -1,241 +1,198 @@
-# AWS Key Sleuth
+# terraform-docs
 
-[Changelog](./CHANGELOG.md)
+[![Build Status](https://github.com/terraform-docs/terraform-docs/workflows/ci/badge.svg)](https://github.com/terraform-docs/terraform-docs/actions) [![GoDoc](https://pkg.go.dev/badge/github.com/terraform-docs/terraform-docs)](https://pkg.go.dev/github.com/terraform-docs/terraform-docs) [![Go Report Card](https://goreportcard.com/badge/github.com/terraform-docs/terraform-docs)](https://goreportcard.com/report/github.com/terraform-docs/terraform-docs) [![Codecov Report](https://codecov.io/gh/terraform-docs/terraform-docs/branch/master/graph/badge.svg)](https://codecov.io/gh/terraform-docs/terraform-docs) [![License](https://img.shields.io/github/license/terraform-docs/terraform-docs)](https://github.com/terraform-docs/terraform-docs/blob/master/LICENSE) [![Latest release](https://img.shields.io/github/v/release/terraform-docs/terraform-docs)](https://github.com/terraform-docs/terraform-docs/releases)
 
-<!-- markdownlint-disable MD013 MD033  -->
+![terraform-docs-teaser](./images/terraform-docs-teaser.png)
 
-## What is this for
+## What is terraform-docs
 
-An auditing tool for AWS keys that audits, alerts, and disable keys if not within compliance settings. This reduces AWS administrator involvement since majority of users will cycle key before being disabled.
+A utility to generate documentation from Terraform modules in various output formats.
 
-## How does this work
+## Installation
 
-Sleuth runs periodically, normally once a day in the middle of business hours. Sleuth does the following:
+macOS users can install using [Homebrew]:
 
-- Inspect each Access Key based on:
-  - set creation age threshold (default 90 days)
-  - set last accessed age threshold (optional, set to creation age threshold as default)
-- If Access Key is approaching threshold will ping user with a reminder to cycle key
-- If key age is at or over threshold will disable Access Key along with a final notice
-- If user has special KeyAutoExpire tag set to False, the key will not be auto-expired
-
-Notifications can be sent directly to Slack using a V1 token or through SNS Topic.
-
-### Configure Environment
-
-Sleuth relies on IAM Tags to know the Slack account/group ID to mention when assembling the notification. Specifically `Name` and `Slack` tags. A sample of a TF IAM user is below
-
-```hcl
-resource "aws_iam_user" "tfunke" {
-  name = "tfunke"
-
-  tags = {
-    Name       = "Tobias Funke"
-    Slack      = "UPML12345"
-  }
-}
+```bash
+brew install terraform-docs
 ```
 
-#### Slack
+or
 
-For a Slack user the standard SlackID is sufficient. For a group the `Slack` tag must have a value of the form `subteam-SP12345` (no `^` is allowed). More info on Slack group identifiers [here](https://api.slack.com/reference/surfaces/formatting#mentioning-groups).
-
-For listing Slack account IDs in bulk look at the [user_hash_dump.py](./scripts/user_hash_dump.py) script.
-
-If the information isn't specified an error will be thrown in the logs and the plain text username will be in the notification.
-
-Required environment variable to enabled Slack integration is `SLACK_URL`.
-
-
-#### SNS
-
-For SNS ensure the IAM role the lambda is running has permission to publish to the SNS topic.
-
-Required environment variable to enable SNS integration is `SNS_TOPIC`.
-
-
-## Suggested Deployment Method
-
-Using the Terraform module [terraform-aws-lambda](https://github.com/trussworks/terraform-aws-lambda) you can deploy the code released to this Github repository.
-
-```hcl
-module "iam_sleuth" {
-  source                 = "trussworks/lambda/aws"
-  version                = "2.2.0"
-  name                   = "iam_sleuth"
-  handler                = "handler.handler"
-  job_identifier         = "iam_sleuth"
-  runtime                = "python3.8"
-  timeout                = "500"
-  role_policy_arns_count = 2
-  role_policy_arns = ["${aws_iam_policy.sleuth_policy.arn}",
-  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"]
-
-  github_project  = "trussworks/aws-iam-sleuth"
-  github_filename = "deployment.zip"
-  github_release  = "v1.0.10"
-
-  validation_sha = "7a501951f8c91758acfcd3e17a06ea7e1fe4021f3b08e54064091d73a95dd6bb"
-
-  source_types = ["events"]
-  source_arns  = ["${aws_cloudwatch_event_rule.sleuth_lambda_rule_trigger.arn}"]
-
-  env_vars = {
-    ENABLE_AUTO_EXPIRE  = "false"
-    EXPIRATION_AGE      = 90
-    WARNING_AGE         = 50
-    EXPIRE_NOTIFICATION_TITLE           = "Key Rotation Instructions"
-    EXPIRE_NOTIFICATION_TEXT            = "Please run.\n ```aws-vault rotate AWS-PROFILE```"
-    INACTIVITY_AGE       = 30
-    INACTIVITY_WARNING_AGE = 20
-    INACTIVE_NOTIFICATION_TITLE         = "Key Usage Instructions to prevent key auto-disable"
-    INACTIVE_NOTIFICATION_TEXT          = "Please run.\n ```aws-vault login AWS-PROFILE```"
-    SLACK_URL           = data.aws_ssm_parameter.slack_url.value
-    SNS_TOPIC           = ""
-  }
-
-  tags = {
-    "Service" = "iam_sleuth"
-  }
-
-}
+```bash
+brew install terraform-docs/tap/terraform-docs
 ```
 
-### Envars
+Windows users can install using [Scoop]:
 
-The behavior can be configured by environment variables.
-
-| Name | Description |
-|------|------------ |
-| ENABLE_AUTO_EXPIRE | Must be set to `true` for key disable action |
-| EXPIRATION_AGE | Age of key creation (in days) to disable a AWS key |
-| EXPIRE_NOTIFICATION_TITLE | Title of the notification message for keys expiring due to creation age|
-| EXPIRE_NOTIFICATION_TEXT | Instructions on key rotation |
-| WARNING_AGE | Age of key creation (in days) to send notifications, must be lower than EXPIRATION_AGE |
-| INACTIVITY_AGE | OPTIONAL, defaults to EXPIRATION_AGE, Age of last key usage (in days) to disable AWS key, must be lower than or equal to EXPIRATION_AGE |
-| INACTIVITY_WARNING_AGE | REQUIRED IF INACTIVITY_AGE is set, otherwise defaults to WARNING, Age of last key usage (in days) to send notifications, must be lower than INACTIVITY_AGE |
-| INACTIVE_NOTIFICATION_TITLE | Title of the notification message for keys expiring due to inactivity |
-| INACTIVE_NOTIFICATION_TEXT | Instructions on key usage to prevent expiration due to inactivity |
-| SLACK_URL | Incoming webhook to send notifications to |
-| SNS_TOPIC | Topic to send a SNS formatted message to |
-| DEBUG | If present will log additional things |
-
-
-## Screenshots
-
-A user is pinged directly with an AWS key 8 days before of the 90 day limit.
-
-<img src="docs/media/readme/mention.png" style="zoom:41%;" />
-
-For IAM accounts that are used by bots such as Jenkins or CircleCI Sleuth can ping a group such as Infra or Engineers to ensure the account does not get disabled by accident.
-
-<img src="docs/media/readme/group.png" style="zoom:38%;" />
-
-A user failed to cycle their AWS key. Sleuth disabled the out of compliant key and posts a single notification to the user. This is the last notification the user will receive.
-
-<img src="docs/media/readme/disable.png" style="zoom:59%;" />
-
-## Developer Setup
-
-Install dependencies:
-
-```sh
-brew install circleci pre-commit python direnv ghr
-pre-commit install --install-hooks
+```bash
+scoop bucket add terraform-docs https://github.com/terraform-docs/scoop-bucket
+scoop install terraform-docs
 ```
 
-Now for downloading the python dependencies:
+or [Chocolatey]:
 
-```sh
-# skip if you already have virtualenv on your machine
-python3 -m pip install --user virtualenv
-virtualenv venv
-source venv/bin/activate
-pip install -r ./sleuth/requirements.txt
+```bash
+choco install terraform-docs
 ```
 
-### Testing
+Stable binaries are also available on the [releases] page. To install, download the
+binary for your platform from "Assets" and place this into your `$PATH`:
 
-All following steps assume you have activated the virtual environment from the previous step.
-
-To run the Python app unittests:
-
-```sh
-pytest
+```bash
+curl -Lo ./terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/v0.19.0/terraform-docs-v0.19.0-$(uname)-amd64.tar.gz
+tar -xzf terraform-docs.tar.gz
+chmod +x terraform-docs
+mv terraform-docs /usr/local/bin/terraform-docs
 ```
 
-To run the python app locally, using trussworks-ci as example account:
+**NOTE:** Windows releases are in `ZIP` format.
 
-1. Login to the trussworks-ci account
+The latest version can be installed using `go install` or `go get`:
 
-   ```shell
-   aws-vault login trussworks-ci
-   ```
+```bash
+# go1.17+
+go install github.com/terraform-docs/terraform-docs@v0.19.0
+```
 
-1. Create test user(s), giving them access keys and optional KeyAutoExire tag
+```bash
+# go1.16
+GO111MODULE="on" go get github.com/terraform-docs/terraform-docs@v0.19.0
+```
 
-   | UserName     | Slack ID     | Key ID               | AutoExpire |
-   |--------------|--------------|----------------------|------------|
-   | sleuth-test1 | sleuth-test1 | KEYID1 | FALSE      |
-   | sleuth-test2 | sleuth-test2 | KEYID2 | TRUE       |
+**NOTE:** please use the latest Go to do this, minimum `go1.16` is required.
 
-1. In the CLI, move to the sleuth subdirectory:
+This will put `terraform-docs` in `$(go env GOPATH)/bin`. If you encounter the error
+`terraform-docs: command not found` after installation then you may need to either add
+that directory to your `$PATH` as shown [here] or do a manual installation by cloning
+the repo and run `make build` from the repository which will put `terraform-docs` in:
 
-   ```shell
-   cd /path/to/trussworks/terraform-aws-iam-sleuth/sleuth
-   ```
+```bash
+$(go env GOPATH)/src/github.com/terraform-docs/terraform-docs/bin/$(uname | tr '[:upper:]' '[:lower:]')-amd64/terraform-docs
+```
 
-1. Export the relevant variables:
+## Usage
 
-   To test the warnings for creation date expiration, considering a key that was made today, use:
+### Running the binary directly
 
-   ```shell
-   export DEBUG=true
-   export SLACK_URL=test
-   export EXPIRATION_AGE=90
-   export WARNING_AGE=0
-   ```
+To run and generate documentation into README within a directory:
 
-   To test the warnings for inactivity expiration, considering a key that was made today, use:
+```bash
+terraform-docs markdown table --output-file README.md --output-mode inject /path/to/module
+```
 
-   ```shell
-   export DEBUG=true
-   export SLACK_URL=test
-   export EXPIRATION_AGE=90
-   export WARNING_AGE=1
-   export INACTIVITY_AGE=30
-   export INACTIVITY_WARNING_AGE=0
-   ```
+Check [`output`] configuration for more details and examples.
 
-    NOTE: Creation age expiration takes precedent over activity age, so setting both `WARNING_AGE=0` and `INACTIVITY_WARNING_AGE=0` will cause only the creation date expiration warning to appear.
+### Using docker
 
-1. Run the app
+terraform-docs can be run as a container by mounting a directory with `.tf`
+files in it and run the following command:
 
-   ```shell
-   aws-vault exec trussworks-ci -- python handler.py
-   ```
+```bash
+docker run --rm --volume "$(pwd):/terraform-docs" -u $(id -u) quay.io/terraform-docs/terraform-docs:0.19.0 markdown /terraform-docs
+```
 
-- Example DEBUG output for creation age, notice the 'old' status:
+If `output.file` is not enabled for this module, generated output can be redirected
+back to a file:
 
-   | UserName     | Slack ID     | Key ID               | AutoExpire | Status | Age in Days | Last Access Age |
-   |--------------|--------------|----------------------|------------|--------|-------------|-----------------|
-   | sleuth-test1 | sleuth-test1 | KEYID1 | FALSE      | good   | 0           | 0               |
-   | sleuth-test2 | sleuth-test2 | KEYID2 | TRUE       | old    | 0           | 0               |
+```bash
+docker run --rm --volume "$(pwd):/terraform-docs" -u $(id -u) quay.io/terraform-docs/terraform-docs:0.19.0 markdown /terraform-docs > doc.md
+```
 
-- Example DEBUG output for inactivity age, notice the 'stagnant' status:
+**NOTE:** Docker tag `latest` refers to _latest_ stable released version and `edge`
+refers to HEAD of `master` at any given point in time.
 
-   | UserName     | Slack ID     | Key ID               | AutoExpire | Status | Age in Days | Last Access Age |
-   |--------------|--------------|----------------------|------------|--------|-------------|-----------------|
-   | sleuth-test1 | sleuth-test1 | KEYID1 | FALSE      | good   | 0           | 0               |
-   | sleuth-test2 | sleuth-test2 | KEYID2 | TRUE       | stagnant    | 0           | 0               |
+### Using GitHub Actions
 
-- By exporting the SLACK_URL=test in addition to DEBUG=true, you can also view the slack message output:
+To use terraform-docs GitHub Action, configure a YAML workflow file (e.g.
+`.github/workflows/documentation.yml`) with the following:
 
-  ```shell
-  slack message: {'attachments': [{'title': 'AWS IAM Key Inactivity Report', 'text': ''}, {'title': 'IAM users with access keys expiring due to inactivity. \n Please login to AWS to prevent key from being disabled', 'color': '#ffff00', 'fields': [{'title': 'Users', 'value': "sleuth-test2's key expires in 30 days due to inactivity."}]}]}
-  ```
+```yaml
+name: Generate terraform docs
+on:
+  - pull_request
 
-<!-- BEGIN_TF_DOCS -->
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+
+    - name: Render terraform docs and push changes back to PR
+      uses: terraform-docs/gh-actions@main
+      with:
+        working-dir: .
+        output-file: README.md
+        output-method: inject
+        git-push: "true"
+```
+
+Read more about [terraform-docs GitHub Action] and its configuration and
+examples.
+
+### pre-commit hook
+
+With pre-commit, you can ensure your Terraform module documentation is kept
+up-to-date each time you make a commit.
+
+First [install pre-commit] and then create or update a `.pre-commit-config.yaml`
+in the root of your Git repo with at least the following content:
+
+```yaml
+repos:
+  - repo: https://github.com/terraform-docs/terraform-docs
+    rev: "v0.19.0"
+    hooks:
+      - id: terraform-docs-go
+        args: ["markdown", "table", "--output-file", "README.md", "./mymodule/path"]
+```
+
+Then run:
+
+```bash
+pre-commit install
+pre-commit install-hooks
+```
+
+Further changes to your module's `.tf` files will cause an update to documentation
+when you make a commit.
+
+## Configuration
+
+terraform-docs can be configured with a yaml file. The default name of this file is
+`.terraform-docs.yml` and the path order for locating it is:
+
+1. root of module directory
+1. `.config/` folder at root of module directory
+1. current directory
+1. `.config/` folder at current directory
+1. `$HOME/.tfdocs.d/`
+
+```yaml
+formatter: "" # this is required
+
+version: ""
+
+header-from: main.tf
+footer-from: ""
+
+recursive:
+  enabled: false
+  path: modules
+  include-main: true
+
+sections:
+  hide: []
+  show: []
+
+content: ""
+
+output:
+  file: ""
+  mode: inject
+  template: |-
+    <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 No requirements.
@@ -260,3 +217,238 @@ No inputs.
 
 No outputs.
 <!-- END_TF_DOCS -->
+
+output-values:
+  enabled: false
+  from: ""
+
+sort:
+  enabled: true
+  by: name
+
+settings:
+  anchor: true
+  color: true
+  default: true
+  description: false
+  escape: true
+  hide-empty: false
+  html: true
+  indent: 2
+  lockfile: true
+  read-comments: true
+  required: true
+  sensitive: true
+  type: true
+```
+
+## Content Template
+
+Generated content can be customized further away with `content` in configuration.
+If the `content` is empty the default order of sections is used.
+
+Compatible formatters for customized content are `asciidoc` and `markdown`. `content`
+will be ignored for other formatters.
+
+`content` is a Go template with following additional variables:
+
+- `{{ .Header }}`
+- `{{ .Footer }}`
+- `{{ .Inputs }}`
+- `{{ .Modules }}`
+- `{{ .Outputs }}`
+- `{{ .Providers }}`
+- `{{ .Requirements }}`
+- `{{ .Resources }}`
+
+and following functions:
+
+- `{{ include "relative/path/to/file" }}`
+
+These variables are the generated output of individual sections in the selected
+formatter. For example `{{ .Inputs }}` is Markdown Table representation of _inputs_
+when formatter is set to `markdown table`.
+
+Note that sections visibility (i.e. `sections.show` and `sections.hide`) takes
+precedence over the `content`.
+
+Additionally there's also one extra special variable avaialble to the `content`:
+
+- `{{ .Module }}`
+
+As opposed to the other variables mentioned above, which are generated sections
+based on a selected formatter, the `{{ .Module }}` variable is just a `struct`
+representing a [Terraform module].
+
+````yaml
+content: |-
+  Any arbitrary text can be placed anywhere in the content
+
+  {{ .Header }}
+
+  and even in between sections
+
+  {{ .Providers }}
+
+  and they don't even need to be in the default order
+
+  {{ .Outputs }}
+
+  include any relative files
+
+  {{ include "relative/path/to/file" }}
+
+  {{ .Inputs }}
+
+  # Examples
+
+  ```hcl
+  {{ include "examples/foo/main.tf" }}
+  ```
+
+  ## Resources
+
+  {{ range .Module.Resources }}
+  - {{ .GetMode }}.{{ .Spec }} ({{ .Position.Filename }}#{{ .Position.Line }})
+  {{- end }}
+````
+
+## Build on top of terraform-docs
+
+terraform-docs primary use-case is to be utilized as a standalone binary, but
+some parts of it is also available publicly and can be imported in your project
+as a library.
+
+```go
+import (
+    "github.com/terraform-docs/terraform-docs/format"
+    "github.com/terraform-docs/terraform-docs/print"
+    "github.com/terraform-docs/terraform-docs/terraform"
+)
+
+// buildTerraformDocs for module root `path` and provided content `tmpl`.
+func buildTerraformDocs(path string, tmpl string) (string, error) {
+    config := print.DefaultConfig()
+    config.ModuleRoot = path // module root path (can be relative or absolute)
+
+    module, err := terraform.LoadWithOptions(config)
+    if err != nil {
+        return "", err
+    }
+
+    // Generate in Markdown Table format
+    formatter := format.NewMarkdownTable(config)
+
+    if err := formatter.Generate(module); err != nil {
+        return "", err
+    }
+
+    // // Note: if you don't intend to provide additional template for the generated
+    // // content, or the target format doesn't provide templating (e.g. json, yaml,
+    // // xml, or toml) you can use `Content()` function instead of `Render()`.
+    // // `Content()` returns all the sections combined with predefined order.
+    // return formatter.Content(), nil
+
+    return formatter.Render(tmpl)
+}
+```
+
+## Plugin
+
+Generated output can be heavily customized with [`content`], but if using that
+is not enough for your use-case, you can write your own plugin.
+
+In order to install a plugin the following steps are needed:
+
+- download the plugin and place it in `~/.tfdocs.d/plugins` (or `./.tfdocs.d/plugins`)
+- make sure the plugin file name is `tfdocs-format-<NAME>`
+- modify [`formatter`] of `.terraform-docs.yml` file to be `<NAME>`
+
+**Important notes:**
+
+- if the plugin file name is different than the example above, terraform-docs won't
+be able to to pick it up nor register it properly
+- you can only use plugin thorough `.terraform-docs.yml` file and it cannot be used
+with CLI arguments
+
+To create a new plugin create a new repository called `tfdocs-format-<NAME>` with
+following `main.go`:
+
+```go
+package main
+
+import (
+    _ "embed" //nolint
+
+    "github.com/terraform-docs/terraform-docs/plugin"
+    "github.com/terraform-docs/terraform-docs/print"
+    "github.com/terraform-docs/terraform-docs/template"
+    "github.com/terraform-docs/terraform-docs/terraform"
+)
+
+func main() {
+    plugin.Serve(&plugin.ServeOpts{
+        Name:    "<NAME>",
+        Version: "0.1.0",
+        Printer: printerFunc,
+    })
+}
+
+//go:embed sections.tmpl
+var tplCustom []byte
+
+// printerFunc the function being executed by the plugin client.
+func printerFunc(config *print.Config, module *terraform.Module) (string, error) {
+    tpl := template.New(config,
+        &template.Item{Name: "custom", Text: string(tplCustom)},
+    )
+
+    rendered, err := tpl.Render("custom", module)
+    if err != nil {
+        return "", err
+    }
+
+    return rendered, nil
+}
+```
+
+Please refer to [tfdocs-format-template] for more details. You can create a new
+repository from it by clicking on `Use this template` button.
+
+## Documentation
+
+- **Users**
+  - Read the [User Guide] to learn how to use terraform-docs
+  - Read the [Formats Guide] to learn about different output formats of terraform-docs
+  - Refer to [Config File Reference] for all the available configuration options
+- **Developers**
+  - Read [Contributing Guide] before submitting a pull request
+
+Visit [our website] for all documentation.
+
+## Community
+
+- Discuss terraform-docs on [Slack]
+
+## License
+
+MIT License - Copyright (c) 2021 The terraform-docs Authors.
+
+[Chocolatey]: https://www.chocolatey.org
+[Config File Reference]: https://terraform-docs.io/user-guide/configuration/
+[`content`]: https://terraform-docs.io/user-guide/configuration/content/
+[Contributing Guide]: CONTRIBUTING.md
+[Formats Guide]: https://terraform-docs.io/reference/terraform-docs/
+[`formatter`]: https://terraform-docs.io/user-guide/configuration/formatter/
+[here]: https://golang.org/doc/code.html#GOPATH
+[Homebrew]: https://brew.sh
+[install pre-commit]: https://pre-commit.com/#install
+[`output`]: https://terraform-docs.io/user-guide/configuration/output/
+[releases]: https://github.com/terraform-docs/terraform-docs/releases
+[Scoop]: https://scoop.sh/
+[Slack]: https://slack.terraform-docs.io/
+[terraform-docs GitHub Action]: https://github.com/terraform-docs/gh-actions
+[Terraform module]: https://pkg.go.dev/github.com/terraform-docs/terraform-docs/terraform#Module
+[tfdocs-format-template]: https://github.com/terraform-docs/tfdocs-format-template
+[our website]: https://terraform-docs.io/
+[User Guide]: https://terraform-docs.io/user-guide/introduction/
