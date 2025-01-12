@@ -39,5 +39,3 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_docs
-        args:
-          - --hook-config=--path-to-file=README.md
