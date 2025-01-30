@@ -1,17 +1,22 @@
 import datetime as dt
-import json
 import logging
 import os
 
-
-from pythonjsonlogger import jsonlogger
 from tabulate import tabulate
 
-from sleuth.services import get_iam_users, disable_key, send_slack_message, send_sns_message, prepare_slack_message, prepare_sns_message
+from sleuth.services import (
+    disable_key,
+    get_iam_users,
+    prepare_slack_message,
+    prepare_sns_message,
+    send_slack_message,
+    send_sns_message,
+)
 
-LOGGER = logging.getLogger('sleuth')
+LOGGER = logging.getLogger("sleuth")
 
-class Key():
+
+class Key:
     username = ""
     key_id = ""
     created = None
@@ -50,35 +55,41 @@ class Key():
         Returns:
         None
         """
-        assert(rotate_age < expire_age)
-        assert(max_inactivity_age <= expire_age)
-        assert(inactivity_warning_age < max_inactivity_age)
+        assert rotate_age < expire_age
+        assert max_inactivity_age <= expire_age
+        assert inactivity_warning_age < max_inactivity_age
 
         # set the valid_for in the object
         self.creation_valid_for = expire_age - self.creation_age
         self.activity_valid_for = max_inactivity_age - self.access_age
 
-
         # lets audit the age
         if self.creation_age >= expire_age:
-            self.audit_state = 'expire'
+            self.audit_state = "expire"
         elif self.access_age >= max_inactivity_age:
-            self.audit_state = 'stagnant_expire'
+            self.audit_state = "stagnant_expire"
         # audit key age, which is more important than inactivity age
-        elif (self.creation_age >= rotate_age and self.creation_age < expire_age):
-            self.audit_state = 'old'
+        elif self.creation_age >= rotate_age and self.creation_age < expire_age:
+            self.audit_state = "old"
         # audit activity age, set to 'stagnant' to not confuse with AWS official "Inactive" status
-        elif (self.access_age >= inactivity_warning_age and self.access_age < max_inactivity_age):
-            self.audit_state = 'stagnant'
+        elif (
+            self.access_age >= inactivity_warning_age
+            and self.access_age < max_inactivity_age
+        ):
+            self.audit_state = "stagnant"
         # finally, if nothing requires us to alert on this key, set to good
         elif self.creation_age < rotate_age:
-            self.audit_state = 'good'
+            self.audit_state = "good"
 
         # lets audit the status
-        if self.status == 'Inactive' and os.environ.get('ENABLE_AUTO_EXPIRE', False) == 'true':
-            self.audit_state = 'disabled'
+        if (
+            self.status == "Inactive"
+            and os.environ.get("ENABLE_AUTO_EXPIRE", False) == "true"
+        ):
+            self.audit_state = "disabled"
 
-class User():
+
+class User:
     username = ""
     user_id = ""
     slack_id = ""
@@ -95,6 +106,7 @@ class User():
         for k in self.keys:
             k.audit(rotate, expire, inactivity, inactivity_warn)
 
+
 def print_key_report(users):
     """Prints table of report
 
@@ -109,74 +121,113 @@ def print_key_report(users):
 
     for u in users:
         for k in u.keys:
-            tbl_data.append([
-                u.username,
-                u.slack_id,
-                k.key_id,
-                u.auto_expire,
-                k.audit_state,
-                k.creation_age,
-                k.access_age
-            ])
+            tbl_data.append(
+                [
+                    u.username,
+                    u.slack_id,
+                    k.key_id,
+                    u.auto_expire,
+                    k.audit_state,
+                    k.creation_age,
+                    k.access_age,
+                ]
+            )
 
-    print(tabulate(tbl_data, headers=['UserName', 'Slack ID', 'Key ID', 'AutoExpire', 'Status', 'Age in Days', 'Last Access Age']))
+    print(
+        tabulate(
+            tbl_data,
+            headers=[
+                "UserName",
+                "Slack ID",
+                "Key ID",
+                "AutoExpire",
+                "Status",
+                "Age in Days",
+                "Last Access Age",
+            ],
+        )
+    )
 
 
 def audit():
     iam_users = get_iam_users()
 
     # Check for optional env vars
-    if (os.environ.get('INACTIVITY_AGE') and not os.environ.get('INACTIVITY_WARNING_AGE')) or (os.environ.get('INACTIVITY_WARNING_AGE') and not os.environ.get('INACTIVITY_AGE')):
-        raise RuntimeError('Must set env var INACTIVITY_WARNING_AGE and INACTIVITY_AGE together')
+    if (
+        os.environ.get("INACTIVITY_AGE")
+        and not os.environ.get("INACTIVITY_WARNING_AGE")
+    ) or (
+        os.environ.get("INACTIVITY_WARNING_AGE")
+        and not os.environ.get("INACTIVITY_AGE")
+    ):
+        raise RuntimeError(
+            "Must set env var INACTIVITY_WARNING_AGE and INACTIVITY_AGE together"
+        )
 
     # lets audit keys so the ages and state are set
     for u in iam_users:
         # Do not audit keys that are set to not allow auto-expire
-        if u.auto_expire.lower()=='false':
-            LOGGER.info('{} key is set to not expire'.format(u.username))
+        if u.auto_expire.lower() == "false":
+            LOGGER.info("{} key is set to not expire".format(u.username))
             for k in u.keys:
-                k.audit_state='good'
+                k.audit_state = "good"
         else:
             # Do not require last used age, set to expiration age as default
-            u.audit(int(os.environ['WARNING_AGE']), int(os.environ['EXPIRATION_AGE']), int(os.environ.get('INACTIVITY_AGE', os.environ['EXPIRATION_AGE'])), int(os.environ.get('INACTIVITY_WARNING_AGE', os.environ['WARNING_AGE'])))
+            u.audit(
+                int(os.environ["WARNING_AGE"]),
+                int(os.environ["EXPIRATION_AGE"]),
+                int(os.environ.get("INACTIVITY_AGE", os.environ["EXPIRATION_AGE"])),
+                int(
+                    os.environ.get("INACTIVITY_WARNING_AGE", os.environ["WARNING_AGE"])
+                ),
+            )
 
-    if os.environ.get('DEBUG', False):
+    if os.environ.get("DEBUG", False):
         print_key_report(iam_users)
 
     # lets disabled expired keys and build list of old and expired for slack
-    if os.environ.get('ENABLE_AUTO_EXPIRE', False) == 'true':
+    if os.environ.get("ENABLE_AUTO_EXPIRE", False) == "true":
         for u in iam_users:
             for k in u.keys:
-                if k.audit_state == 'expire' or k.audit_state == 'stagnant_expire':
+                if k.audit_state == "expire" or k.audit_state == "stagnant_expire":
                     disable_key(k, u.username)
     else:
-        LOGGER.warn('Cannot disable AWS Keys, ENABLE_AUTO_EXPIRE set to False')
+        LOGGER.warn("Cannot disable AWS Keys, ENABLE_AUTO_EXPIRE set to False")
 
     # Default expiration headers
-    EXP_MSG_TITLE = os.environ.get('EXPIRE_NOTIFICATION_TITLE', 'AWS IAM Key Expiration Report')
-    EXP_MSG_TEXT = os.environ.get('EXPIRE_NOTIFICATION_TEXT', '')
-    STGNT_MSG_TITLE = os.environ.get('INACTIVE_NOTIFICATION_TITLE', 'AWS IAM Key Inactivity Report')
-    STGNT_MSG_TEXT = os.environ.get('INACTIVE_NOTIFICATION_TEXT', '')
+    EXP_MSG_TITLE = os.environ.get(
+        "EXPIRE_NOTIFICATION_TITLE", "AWS IAM Key Expiration Report"
+    )
+    EXP_MSG_TEXT = os.environ.get("EXPIRE_NOTIFICATION_TEXT", "")
+    STGNT_MSG_TITLE = os.environ.get(
+        "INACTIVE_NOTIFICATION_TITLE", "AWS IAM Key Inactivity Report"
+    )
+    STGNT_MSG_TEXT = os.environ.get("INACTIVE_NOTIFICATION_TEXT", "")
 
     # lets assemble the SNS message
-    if os.environ.get('SNS_TOPIC', None) is not None:
-        LOGGER.info('Detected SNS settings, preparing and sending message via SNS')
-        send_to_slack, slack_msg = prepare_sns_message(iam_users, EXP_MSG_TITLE, EXP_MSG_TEXT, STGNT_MSG_TITLE, STGNT_MSG_TEXT)
+    if os.environ.get("SNS_TOPIC", None) is not None:
+        LOGGER.info("Detected SNS settings, preparing and sending message via SNS")
+        send_to_slack, slack_msg = prepare_sns_message(
+            iam_users, EXP_MSG_TITLE, EXP_MSG_TEXT, STGNT_MSG_TITLE, STGNT_MSG_TEXT
+        )
 
         if send_to_slack:
-            send_sns_message(os.environ['SNS_TOPIC'], slack_msg)
+            send_sns_message(os.environ["SNS_TOPIC"], slack_msg)
         else:
-            LOGGER.info('Nothing to report')
-
+            LOGGER.info("Nothing to report")
 
     # lets assemble and send Slack msg
-    if os.environ.get('SLACK_URL', None) is not None:
-        LOGGER.info('Detected Slack settings, preparing and sending message via Slack API')
+    if os.environ.get("SLACK_URL", None) is not None:
+        LOGGER.info(
+            "Detected Slack settings, preparing and sending message via Slack API"
+        )
         # lets assemble the slack message
-        send_to_slack, slack_msg = prepare_slack_message(iam_users, EXP_MSG_TITLE, EXP_MSG_TEXT, STGNT_MSG_TITLE, STGNT_MSG_TEXT)
-        if os.environ.get('DEBUG', False):
+        send_to_slack, slack_msg = prepare_slack_message(
+            iam_users, EXP_MSG_TITLE, EXP_MSG_TEXT, STGNT_MSG_TITLE, STGNT_MSG_TEXT
+        )
+        if os.environ.get("DEBUG", False):
             print("slack message:", slack_msg)
         elif send_to_slack:
-            send_slack_message(os.environ['SLACK_URL'], slack_msg)
+            send_slack_message(os.environ["SLACK_URL"], slack_msg)
         else:
-            LOGGER.info('Nothing to report')
+            LOGGER.info("Nothing to report")
