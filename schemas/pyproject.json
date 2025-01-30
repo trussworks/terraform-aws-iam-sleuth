@@ -1,0 +1,984 @@
+{
+  "$comment": "there are multiple resources describing pyproject.toml. The canonical reference is at https://packaging.python.org/en/latest/specifications/declaring-project-metadata/, which refers to multiple proposals such as PEP 517, PEP 518 and PEP 621",
+  "$id": "https://json.schemastore.org/pyproject.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "BuildSystem": {
+      "additionalProperties": false,
+      "description": "Declares any Python level dependencies that must be installed in order to run the project\u2019s build system successfully.",
+      "markdownDescription": "Declares any Python level dependencies that must be installed in order to run the project\u2019s build system successfully.",
+      "properties": {
+        "backend-path": {
+          "description": "list of directories to prepend to `sys.path` when loading the build backend, relative to project root",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "list of directoriesrepend to `sys.path` when loading the build backend, relative to project root",
+          "title": "Build backend directories",
+          "type": "array",
+          "x-intellij-html-description": "<p>list of directories to prepend to <code>sys.path</code> when loading the build backend, relative to project root</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://peps.python.org/pep-0517/#in-tree-build-backends"
+            }
+          }
+        },
+        "build-backend": {
+          "description": "String is formatted following the same `module:object` syntax as a `setuptools` entry point. It\u2019s also legal to leave out the `:object` part.",
+          "examples": [
+            "setuptools.build_meta",
+            "my_build_backend:backend"
+          ],
+          "markdownDescription": "String is formatted following the same `module:object` syntax as a `setuptools` entry point. It\u2019s also legal to leave out the `:object` part.",
+          "title": "Name of Python object used to perform the build",
+          "type": "string",
+          "x-intellij-html-description": "<p>String is formatted following the same <code>module:object</code> syntax as a <code>setuptools</code> entry point. It\u2019s also legal to leave out the <code>:object</code> part.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://peps.python.org/pep-0517/#source-trees"
+            }
+          }
+        },
+        "requires": {
+          "description": "List of strings following the version specifier specification, representing dependencies required to execute the build system.",
+          "examples": [
+            "setuptools >= 64.0"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "List of strings following the [version specifier specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers), representing dependencies required to execute the build system.",
+          "title": "Build system dependencies",
+          "type": "array",
+          "x-intellij-html-description": "<p>List of strings following the <a href=\"https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers\">version specifier specification</a>, representing dependencies required to execute the build system.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#declaring-build-system-dependencies-the-build-system-table"
+            }
+          }
+        }
+      },
+      "required": [
+        "requires"
+      ],
+      "title": "Project build system configuration",
+      "type": "object",
+      "x-intellij-html-description": "<p>Declares any Python level dependencies that must be installed in order to run the project\u2019s build system successfully.</p>",
+      "x-taplo": {
+        "links": {
+          "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#declaring-build-system-dependencies-the-build-system-table"
+        }
+      }
+    },
+    "projectAuthor": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "name": true
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "email": true
+          },
+          "required": [
+            "email"
+          ]
+        }
+      ],
+      "properties": {
+        "email": {
+          "format": "email",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "properties": {
+    "build-system": {
+      "$ref": "#/definitions/BuildSystem"
+    },
+    "dependency-groups": {
+      "additionalProperties": false,
+      "description": "Named groups of dependencies, similar to `requirements.txt` files, which launchers, IDEs, and other tools can find and identify by name. Each item in `[dependency-groups]` is defined as mapping of group name to list of [dependency specifiers](https://packaging.python.org/en/latest/specifications/dependency-specifiers/).",
+      "markdownDescription": "Named groups of dependencies, similar to `requirements.txt` files, which launchers, IDEs, and other tools can find and identify by name. Each item in `[dependency-groups]` is defined as mapping of group name to list of [dependency specifiers](https://packaging.python.org/en/latest/specifications/dependency-specifiers/).",
+      "patternProperties": {
+        "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9])$": {
+          "description": "Each list item should be either:\n- [dependency specifiers](https://packaging.python.org/en/latest/specifications/dependency-specifiers/), or\n- table with a single key `include-group` which specifies another group name to include into this one",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "include-group": {
+                    "pattern": "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9])$",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            ]
+          },
+          "markdownDescription": "Each list item should be either:\n- [dependency specifiers](https://packaging.python.org/en/latest/specifications/dependency-specifiers/), or\n- table with a single key `include-group` which specifies another group name to include into this one",
+          "title": "Dependency specifiers or include groups",
+          "type": "array",
+          "x-intellij-html-description": "<p>Each list item should be either:</p><ul><li><a href=\"https://packaging.python.org/en/latest/specifications/dependency-specifiers/\">dependency specifiers</a>, or</li><li>table with a single key <code>include-group</code> which specifies another group name to include into this one</li></ul>"
+        }
+      },
+      "title": "PEP 735 dependency groups",
+      "type": "object",
+      "x-intellij-html-description": "<p>Named groups of dependencies, similar to <code>requirements.txt</code> files, which launchers, IDEs, and other tools can find and identify by name. Each item in <code>[dependency-groups]</code> is defined as mapping of group name to list of <a href=\"https://packaging.python.org/en/latest/specifications/dependency-specifiers/\">dependency specifiers</a>.</p>",
+      "x-taplo": {
+        "links": {
+          "key": "https://peps.python.org/pep-0735/"
+        }
+      }
+    },
+    "project": {
+      "additionalProperties": false,
+      "dependencies": {
+        "authors": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "authors"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "classifiers": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "classifiers"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "dependencies": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "dependencies"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "description": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "description"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "entry-points": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "entry-points"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "gui-scripts": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "gui-scripts"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "keywords": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "keywords"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "license": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "license"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "license-files": {
+          "allOf": [
+            {
+              "not": {
+                "properties": {
+                  "dynamic": {
+                    "contains": {
+                      "const": "license-files"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "dynamic"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "license": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "maintainers": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "maintainers"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "optional-dependencies": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "optional-dependencies"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "readme": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "readme"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "requires-python": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "requires-python"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "scripts": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "scripts"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "urls": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "urls"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        },
+        "version": {
+          "not": {
+            "properties": {
+              "dynamic": {
+                "contains": {
+                  "const": "version"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dynamic"
+            ]
+          }
+        }
+      },
+      "description": "There are two kinds of metadata: _static_ and _dynamic_.\n- Static metadata is listed in the `[project]` table directly and cannot be specified or changed by a tool.\n- Dynamic metadata key names are listed inside the `dynamic` key and represents metadata that a tool will later provide.",
+      "markdownDescription": "There are two kinds of metadata: _static_ and _dynamic_.\n- Static metadata is listed in the `[project]` table directly and cannot be specified or changed by a tool.\n- Dynamic metadata key names are listed inside the `dynamic` key and represents metadata that a tool will later provide.",
+      "oneOf": [
+        {
+          "properties": {
+            "dynamic": {
+              "contains": {
+                "const": "version"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "dynamic"
+          ]
+        },
+        {
+          "properties": {
+            "version": true
+          },
+          "required": [
+            "version"
+          ]
+        }
+      ],
+      "properties": {
+        "authors": {
+          "description": "People or organizations considered as 'authors' of the project. Each author is a table with `name` key, `email` key, or both.",
+          "items": {
+            "$ref": "#/definitions/projectAuthor"
+          },
+          "markdownDescription": "People or organizations considered as 'authors' of the project. Each author is a table with `name` key, `email` key, or both.",
+          "title": "Project authors",
+          "type": "array",
+          "x-intellij-html-description": "<p>People or organizations considered as 'authors' of the project. Each author is a table with <code>name</code> key, <code>email</code> key, or both.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#authors-maintainers"
+            }
+          }
+        },
+        "classifiers": {
+          "description": "List of [Trove classifiers](https://pypi.org/classifiers/) that describe the project. PyPI use the classifiers to categorize projects.",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "List of [Trove classifiers](https://pypi.org/classifiers/) that describe the project. PyPI use the classifiers to categorize projects.",
+          "title": "Applicable Trove classifiers",
+          "type": "array",
+          "x-intellij-html-description": "<p>List of <a href=\"https://pypi.org/classifiers/\">Trove classifiers</a> that describe the project. PyPI use the classifiers to categorize projects.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#classifiers"
+            }
+          }
+        },
+        "dependencies": {
+          "description": "An array of [dependency specifier](https://packaging.python.org/en/latest/specifications/dependency-specifiers/) strings, each representing a mandatory dependent package of the project.",
+          "examples": [
+            [
+              "attrs",
+              "requests ~= 2.28"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "An array of [dependency specifier](https://packaging.python.org/en/latest/specifications/dependency-specifiers/) strings, each representing a mandatory dependent package of the project.",
+          "title": "Project mandatory dependency requirements",
+          "type": "array",
+          "x-intellij-html-description": "<p>An array of <a href=\"https://packaging.python.org/en/latest/specifications/dependency-specifiers/\">dependency specifier</a> strings, each representing a mandatory dependent package of the project.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#dependencies-optional-dependencies"
+            }
+          }
+        },
+        "description": {
+          "description": "Summary description of the project in one line. Tools may not accept multiple lines.",
+          "markdownDescription": "Summary description of the project in one line. Tools may not accept multiple lines.",
+          "title": "Project summary description",
+          "type": "string",
+          "x-intellij-html-description": "<p>Summary description of the project in one line. Tools may not accept multiple lines.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#description"
+            }
+          }
+        },
+        "dynamic": {
+          "description": "Specifies which keys are intentionally unspecified under `[project]` table so build backend can/will provide such metadata dynamically. Each key must be listed only once. It is an error to both list a key in `dynamic` and use the key directly in `[project]`.\nOne of the most common usage is `version`, which allows build backend to retrieve project version from source code or version control system instead of hardcoding it in `pyproject.toml`.",
+          "examples": [
+            [
+              "version"
+            ]
+          ],
+          "items": {
+            "enum": [
+              "version",
+              "description",
+              "readme",
+              "requires-python",
+              "license",
+              "license-files",
+              "authors",
+              "maintainers",
+              "keywords",
+              "classifiers",
+              "urls",
+              "scripts",
+              "gui-scripts",
+              "entry-points",
+              "dependencies",
+              "optional-dependencies"
+            ],
+            "type": "string"
+          },
+          "markdownDescription": "Specifies which keys are intentionally unspecified under `[project]` table so build backend can/will provide such metadata dynamically. Each key must be listed only once. It is an error to both list a key in `dynamic` and use the key directly in `[project]`.\nOne of the most common usage is `version`, which allows build backend to retrieve project version from source code or version control system instead of hardcoding it in `pyproject.toml`.",
+          "title": "Dynamic metadata values",
+          "type": "array",
+          "x-intellij-html-description": "<p>Specifies which keys are intentionally unspecified under <code>[project]</code> table so build backend can/will provide such metadata dynamically. Each key must be listed only once. It is an error to both list a key in <code>dynamic</code> and use the key directly in <code>[project]</code>.</p><p>One of the most common usage is <code>version</code>, which allows build backend to retrieve project version from source code or version control system instead of hardcoding it in <code>pyproject.toml</code>.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#dynamic"
+            }
+          }
+        },
+        "entry-points": {
+          "additionalProperties": false,
+          "description": "Extra [entry point groups](https://packaging.python.org/en/latest/specifications/entry-points/) that allow applications to load plugins. For example, Pygments (a syntax highlighting tool) can use additional styles from separately installed packages through `[project.entry-points.\"pygments.styles\"]`. Each key is the name of the entry-point group, and each value is a table of entry points.",
+          "examples": [
+            {
+              "pygments.styles": {
+                "monokai": "package.module:object.attribute"
+              }
+            }
+          ],
+          "markdownDescription": "Extra [entry point groups](https://packaging.python.org/en/latest/specifications/entry-points/) that allow applications to load plugins. For example, Pygments (a syntax highlighting tool) can use additional styles from separately installed packages through `[project.entry-points.\"pygments.styles\"]`. Each key is the name of the entry-point group, and each value is a table of entry points.",
+          "patternProperties": {
+            "^\\w+(\\.\\w+)*$": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          },
+          "propertyNames": {
+            "not": {
+              "anyOf": [
+                {
+                  "const": "console_scripts"
+                },
+                {
+                  "const": "gui_scripts"
+                }
+              ]
+            }
+          },
+          "title": "Other entry-point groups",
+          "type": "object",
+          "x-intellij-html-description": "<p>Extra <a href=\"https://packaging.python.org/en/latest/specifications/entry-points/\">entry point groups</a> that allow applications to load plugins. For example, Pygments (a syntax highlighting tool) can use additional styles from separately installed packages through <code>[project.entry-points.\"pygments.styles\"]</code>. Each key is the name of the entry-point group, and each value is a table of entry points.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/entry-points/#use-for-plugins"
+            }
+          }
+        },
+        "gui-scripts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Table of [entry points](https://packaging.python.org/en/latest/specifications/entry-points/) that allows package installers to create a GUI wrapper for. Each key is the name of the script to be created, and each value is the function or object to all, in form of either `importable.module` or `importable.module:object.attr`. Windows platform treats `gui_scripts` specially in that they are wrapped in a GUI executable, so they can be started without a console, but cannot use standard streams unless application code redirects them.",
+          "examples": [
+            {
+              "mycmd": "package.module:object.function"
+            }
+          ],
+          "markdownDescription": "Table of [entry points](https://packaging.python.org/en/latest/specifications/entry-points/) that allows package installers to create a GUI wrapper for. Each key is the name of the script to be created, and each value is the function or object to all, in form of either `importable.module` or `importable.module:object.attr`. Windows platform treats `gui_scripts` specially in that they are wrapped in a GUI executable, so they can be started without a console, but cannot use standard streams unless application code redirects them.",
+          "title": "GUI scripts",
+          "type": "object",
+          "x-intellij-html-description": "<p>Table of <a href=\"https://packaging.python.org/en/latest/specifications/entry-points/\">entry points</a> that allows package installers to create a GUI wrapper for. Each key is the name of the script to be created, and each value is the function or object to all, in form of either <code>importable.module</code> or <code>importable.module:object.attr</code>. Windows platform treats <code>gui_scripts</code> specially in that they are wrapped in a GUI executable, so they can be started without a console, but cannot use standard streams unless application code redirects them.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/entry-points/#use-for-scripts"
+            }
+          }
+        },
+        "keywords": {
+          "description": "List of keywords or tags that describe the project. They could be used by search engines to categorize the project.",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "List of keywords or tags that describe the project. They could be used by search engines to categorize the project.",
+          "title": "Project keywords",
+          "type": "array",
+          "x-intellij-html-description": "<p>List of keywords or tags that describe the project. They could be used by search engines to categorize the project.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#keywords"
+            }
+          }
+        },
+        "license": {
+          "$comment": "PEP 639 specifies current behavior (text / file subkey) will be deprecated, but this PEP is still under provisional status.",
+          "description": "For now it is a table with either:\n- `file` key specifying a relative path to a license file, or\n- `text` key containing full license content\n\nNewer tool may accept a single [SPDX license expression](https://spdx.github.io/spdx-spec/v2.2.2/SPDX-license-expressions/) string instead of a table.",
+          "examples": [
+            {
+              "text": "To the extent possible under law, the author(s) who associated this software with CC0 have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty."
+            },
+            {
+              "file": "LICENSE"
+            },
+            "MIT",
+            "BSD-2-Clause OR Apache-2.0",
+            "LicenseRef-Proprietary"
+          ],
+          "markdownDescription": "For now it is a table with either:\n- `file` key specifying a relative path to a license file, or\n- `text` key containing full license content\n\nNewer tool may accept a single [SPDX license expression](https://spdx.github.io/spdx-spec/v2.2.2/SPDX-license-expressions/) string instead of a table.",
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "file": {
+                  "title": "License file path",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "file"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "text": {
+                  "title": "License text",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "type": "object"
+            },
+            {
+              "$comment": "Maybe add 'deprecated' keyword to table usage when SPDX license expression usage is finalized. But that requires 2019-09 draft.",
+              "type": "string"
+            }
+          ],
+          "title": "Project license",
+          "x-intellij-html-description": "<p>For now it is a table with either:</p><ul><li><code>file</code> key specifying a relative path to a license file, or</li><li><code>text</code> key containing full license content</li></ul><p>Newer tool may accept a single <a href=\"https://spdx.github.io/spdx-spec/v2.2.2/SPDX-license-expressions/\">SPDX license expression</a> string instead of a table.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#license"
+            }
+          }
+        },
+        "license-files": {
+          "$comment": "Still provisional under PEP 639",
+          "description": "Relative paths or globs to paths of license files. Can be an empty list.",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "Relative paths or globs to paths of license files. Can be an empty list.",
+          "title": "License files",
+          "type": "array",
+          "x-intellij-html-description": "<p>Relative paths or globs to paths of license files. Can be an empty list.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://peps.python.org/pep-0639/#add-license-files-key"
+            }
+          }
+        },
+        "maintainers": {
+          "description": "People or organizations considered as 'maintainers' of the project. Each maintainer is a table with `name` key, `email` key, or both.",
+          "items": {
+            "$ref": "#/definitions/projectAuthor"
+          },
+          "markdownDescription": "People or organizations considered as 'maintainers' of the project. Each maintainer is a table with `name` key, `email` key, or both.",
+          "title": "Project maintainers",
+          "type": "array",
+          "x-intellij-html-description": "<p>People or organizations considered as 'maintainers' of the project. Each maintainer is a table with <code>name</code> key, <code>email</code> key, or both.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#authors-maintainers"
+            }
+          }
+        },
+        "name": {
+          "description": "Valid name consists only of ASCII letters and numbers, period, underscore and hyphen. It must start and end with a letter or number.",
+          "markdownDescription": "Valid name consists only of ASCII letters and numbers, period, underscore and hyphen. It must start and end with a letter or number.",
+          "pattern": "^([a-zA-Z\\d]|[a-zA-Z\\d][\\w.-]*[a-zA-Z\\d])$",
+          "title": "Project name",
+          "type": "string",
+          "x-intellij-html-description": "<p>Valid name consists only of ASCII letters and numbers, period, underscore and hyphen. It must start and end with a letter or number.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#name"
+            }
+          }
+        },
+        "optional-dependencies": {
+          "description": "Each entry is a key/value pair, with the key specifying [extra feature name](https://packaging.python.org/en/latest/specifications/core-metadata/#provides-extra-multiple-use) (such as `socks` in `requests[socks]`), and value is an array of [dependency specifier](https://packaging.python.org/en/latest/specifications/dependency-specifiers/) strings.",
+          "examples": [
+            {
+              "typing": [
+                "boto3-stubs",
+                "typing-extensions ~= 4.1"
+              ]
+            }
+          ],
+          "markdownDescription": "Each entry is a key/value pair, with the key specifying [extra feature name](https://packaging.python.org/en/latest/specifications/core-metadata/#provides-extra-multiple-use) (such as `socks` in `requests[socks]`), and value is an array of [dependency specifier](https://packaging.python.org/en/latest/specifications/dependency-specifiers/) strings.",
+          "patternProperties": {
+            "^([a-z\\d]|[a-z\\d]([a-z\\d-](?!--))*[a-z\\d])$": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "title": "Project extra dependency requirements",
+          "type": "object",
+          "x-intellij-html-description": "<p>Each entry is a key/value pair, with the key specifying <a href=\"https://packaging.python.org/en/latest/specifications/core-metadata/#provides-extra-multiple-use\">extra feature name</a> (such as <code>socks</code> in <code>requests[socks]</code>), and value is an array of <a href=\"https://packaging.python.org/en/latest/specifications/dependency-specifiers/\">dependency specifier</a> strings.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#dependencies-optional-dependencies"
+            }
+          }
+        },
+        "readme": {
+          "description": "Value can be a relative path to text / markdown (`.md` suffix) / reStructuredText (`.rst` suffix) readme file, or a table with either:\n- `file` key containing path of aforementioned readme file, or\n- `text` key containing the full readme text embedded inside `pyproject.toml`.",
+          "examples": [
+            "README.md",
+            {
+              "content-type": "text/plain",
+              "file": "README.txt"
+            },
+            {
+              "content-type": "text/markdown",
+              "text": "# Example project\n\nSome readme content"
+            }
+          ],
+          "markdownDescription": "Value can be a relative path to text / markdown (`.md` suffix) / reStructuredText (`.rst` suffix) readme file, or a table with either:\n- `file` key containing path of aforementioned readme file, or\n- `text` key containing the full readme text embedded inside `pyproject.toml`.",
+          "oneOf": [
+            {
+              "title": "README file path",
+              "type": "string"
+            },
+            {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "content-type": true,
+                    "file": {
+                      "title": "README file path",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "file"
+                  ]
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "content-type": true,
+                    "text": {
+                      "title": "README text",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "text"
+                  ]
+                }
+              ],
+              "properties": {
+                "content-type": {
+                  "description": "RFC 1341 compliant content-type (with optional charset, defaulting to UTF-8)",
+                  "title": "README text content-type",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "content-type"
+              ],
+              "type": "object"
+            }
+          ],
+          "title": "Project full description",
+          "x-intellij-html-description": "<p>Value can be a relative path to text / markdown (<code>.md</code> suffix) / reStructuredText (<code>.rst</code> suffix) readme file, or a table with either:</p><ul><li><code>file</code> key containing path of aforementioned readme file, or</li><li><code>text</code> key containing the full readme text embedded inside <code>pyproject.toml</code>.</li></ul>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#readme"
+            }
+          }
+        },
+        "requires-python": {
+          "description": "Specifies the Python version(s) that the distribution is compatible with. Must be in the format specified in [Version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/).",
+          "examples": [
+            ">= 3.7"
+          ],
+          "markdownDescription": "Specifies the Python version(s) that the distribution is compatible with. Must be in the format specified in [Version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/).",
+          "title": "Python version compatibility",
+          "type": "string",
+          "x-intellij-html-description": "<p>Specifies the Python version(s) that the distribution is compatible with. Must be in the format specified in <a href=\"https://packaging.python.org/en/latest/specifications/version-specifiers/\">Version specifiers</a>.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#requires-python"
+            }
+          }
+        },
+        "scripts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Table of [entry points](https://packaging.python.org/en/latest/specifications/entry-points/) that allows package installers to create a command-line wrapper for. Each key is the name of the script to be created, and each value is the function or object to all, in form of either `importable.module` or `importable.module:object.attr`. Windows platform treats `console_scripts` specially in that they are wrapped in a console executable, so they are attached to a console and can use `sys.stdin`, `sys.stdout` and `sys.stderr` for I/O.",
+          "examples": [
+            {
+              "mycmd": "package.module:object.function"
+            }
+          ],
+          "markdownDescription": "Table of [entry points](https://packaging.python.org/en/latest/specifications/entry-points/) that allows package installers to create a command-line wrapper for. Each key is the name of the script to be created, and each value is the function or object to all, in form of either `importable.module` or `importable.module:object.attr`. Windows platform treats `console_scripts` specially in that they are wrapped in a console executable, so they are attached to a console and can use `sys.stdin`, `sys.stdout` and `sys.stderr` for I/O.",
+          "title": "Console scripts",
+          "type": "object",
+          "x-intellij-html-description": "<p>Table of <a href=\"https://packaging.python.org/en/latest/specifications/entry-points/\">entry points</a> that allows package installers to create a command-line wrapper for. Each key is the name of the script to be created, and each value is the function or object to all, in form of either <code>importable.module</code> or <code>importable.module:object.attr</code>. Windows platform treats <code>console_scripts</code> specially in that they are wrapped in a console executable, so they are attached to a console and can use <code>sys.stdin</code>, <code>sys.stdout</code> and <code>sys.stderr</code> for I/O.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/entry-points/#use-for-scripts"
+            }
+          }
+        },
+        "urls": {
+          "additionalProperties": {
+            "format": "uri",
+            "type": "string"
+          },
+          "description": "Table consisting one or multiple `label: URL` pairs. Common indexes like PyPI uses [well-known Project URLs](https://packaging.python.org/en/latest/specifications/well-known-project-urls/#well-known-labels) when presenting project pages.",
+          "examples": [
+            {
+              "homepage": "https://example.com/example-project"
+            },
+            {
+              "\"home page\"": "https://example.com/example-project",
+              "documentation": "https://doc.example.com/example-project/stable",
+              "repository": "https://git.example.com/some/repo.git"
+            }
+          ],
+          "markdownDescription": "Table consisting one or multiple `label: URL` pairs. Common indexes like PyPI uses [well-known Project URLs](https://packaging.python.org/en/latest/specifications/well-known-project-urls/#well-known-labels) when presenting project pages.",
+          "title": "Project URLs",
+          "type": "object",
+          "x-intellij-html-description": "<p>Table consisting one or multiple <code>label: URL</code> pairs. Common indexes like PyPI uses <a href=\"https://packaging.python.org/en/latest/specifications/well-known-project-urls/#well-known-labels\">well-known Project URLs</a> when presenting project pages.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#urls"
+            }
+          }
+        },
+        "version": {
+          "description": "Version of the project, as defined in the [Version specifier specification](https://packaging.python.org/en/latest/specifications/version-specifiers/), and preferably [already normalized](https://packaging.python.org/en/latest/specifications/version-specifiers/#normalization).",
+          "examples": [
+            "42.0.1",
+            "0.3.9rc7.post0.dev5"
+          ],
+          "markdownDescription": "Version of the project, as defined in the [Version specifier specification](https://packaging.python.org/en/latest/specifications/version-specifiers/), and preferably [already normalized](https://packaging.python.org/en/latest/specifications/version-specifiers/#normalization).",
+          "pattern": "^v?((([0-9]+)!)?([0-9]+(\\.[0-9]+)*)([-_\\.]?(alpha|a|beta|b|preview|pre|c|rc)[-_\\.]?([0-9]+)?)?((-([0-9]+))|([-_\\.]?(post|rev|r)[-_\\.]?([0-9]+)?))?([-_\\.]?(dev)[-_\\.]?([0-9]+)?)?)(\\+([a-z0-9]+([-_\\.][a-z0-9]+)*))?$",
+          "title": "Project version",
+          "type": "string",
+          "x-intellij-html-description": "<p>Version of the project, as defined in the <a href=\"https://packaging.python.org/en/latest/specifications/version-specifiers/\">Version specifier specification</a>, and preferably <a href=\"https://packaging.python.org/en/latest/specifications/version-specifiers/#normalization\">already normalized</a>.</p>",
+          "x-taplo": {
+            "links": {
+              "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#version"
+            }
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Project core metadata",
+      "type": "object",
+      "x-intellij-html-description": "<p>There are two kinds of metadata: <em>static</em> and <em>dynamic</em>.</p><ul><li>Static metadata is listed in the <code>[project]</code> table directly and cannot be specified or changed by a tool.</li><li>Dynamic metadata key names are listed inside the <code>dynamic</code> key and represents metadata that a tool will later provide.</li></ul>",
+      "x-taplo": {
+        "links": {
+          "initKeys": [
+            "name",
+            "version",
+            "description",
+            "readme",
+            "license",
+            "authors",
+            "classifiers",
+            "urls",
+            "dependencies"
+          ],
+          "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#declaring-project-metadata-the-project-table"
+        }
+      }
+    },
+    "tool": {
+      "additionalProperties": {
+        "type": "object"
+      },
+      "description": "Every tool that is used by the project can have users specify configuration data as long as they use a sub-table within `[tool]`. Generally a project can use the subtable `tool.$NAME` if, and only if, they own the entry for `$NAME` in the Cheeseshop/PyPI.",
+      "examples": [
+        {
+          "tool": {
+            "isort": {
+              "profile": "black"
+            }
+          }
+        }
+      ],
+      "markdownDescription": "Every tool that is used by the project can have users specify configuration data as long as they use a sub-table within `[tool]`. Generally a project can use the subtable `tool.$NAME` if, and only if, they own the entry for `$NAME` in the Cheeseshop/PyPI.",
+      "properties": {
+        "black": {
+          "$ref": "https://json.schemastore.org/partial-black.json"
+        },
+        "cibuildwheel": {
+          "$ref": "https://json.schemastore.org/partial-cibuildwheel.json"
+        },
+        "hatch": {
+          "$ref": "https://json.schemastore.org/hatch.json"
+        },
+        "mypy": {
+          "$ref": "https://json.schemastore.org/partial-mypy.json"
+        },
+        "pdm": {
+          "$ref": "https://json.schemastore.org/partial-pdm.json"
+        },
+        "poe": {
+          "$ref": "https://json.schemastore.org/partial-poe.json"
+        },
+        "poetry": {
+          "$ref": "https://json.schemastore.org/partial-poetry.json"
+        },
+        "pyright": {
+          "$ref": "https://json.schemastore.org/partial-pyright.json"
+        },
+        "ruff": {
+          "$ref": "https://json.schemastore.org/ruff.json"
+        },
+        "scikit-build": {
+          "$ref": "https://json.schemastore.org/partial-scikit-build.json"
+        },
+        "setuptools": {
+          "$ref": "https://json.schemastore.org/partial-setuptools.json"
+        },
+        "setuptools_scm": {
+          "$ref": "https://json.schemastore.org/partial-setuptools-scm.json"
+        },
+        "tox": {
+          "$ref": "https://json.schemastore.org/partial-tox.json"
+        },
+        "uv": {
+          "$ref": "https://json.schemastore.org/uv.json"
+        }
+      },
+      "title": "Tool-specific configuration",
+      "type": "object",
+      "x-intellij-html-description": "<p>Every tool that is used by the project can have users specify configuration data as long as they use a sub-table within <code>[tool]</code>. Generally a project can use the subtable <code>tool.$NAME</code> if, and only if, they own the entry for <code>$NAME</code> in the Cheeseshop/PyPI.</p>",
+      "x-taplo": {
+        "links": {
+          "key": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#arbitrary-tool-configuration-the-tool-table"
+        }
+      }
+    }
+  },
+  "title": "JSON schema for Python project metadata and configuration",
+  "type": "object",
+  "x-taplo-info": {
+    "authors": [
+      "zevisert (https://github.com/zevisert)"
+    ],
+    "pattern": [
+      "^(.*(/|\\\\)pyproject\\.toml|pyproject\\.toml)$"
+    ]
+  },
+  "x-tombi-toml-version": "v1.0.0"
+}
