@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
         with:
-          poetry-version: "2.5.0"
+          poetry-version: "2.5.1"
       - name: Install with Poetry
         run: poetry install
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
