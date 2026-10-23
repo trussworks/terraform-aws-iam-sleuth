@@ -4,7 +4,7 @@ set -eu -o pipefail
 
 ZIP_NAME=${ZIP_NAME:-deployment.zip}
 
-pip install --target ./reqs -r sleuth/requirements.txt
+pip install --require-hashes --no-deps --target ./reqs -r sleuth/requirements.txt
 pushd reqs
 zip -r9 "../$ZIP_NAME" .
 popd
@@ -18,5 +18,5 @@ ls
 echo "Packaging complete, saving as artifact."
 
 echo "Calculating checksum."
-sha256sum deployment.zip > checksums.txt
+sha256sum "$ZIP_NAME" > checksums.txt
 ls

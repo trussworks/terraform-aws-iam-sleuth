@@ -9,7 +9,7 @@ module "iam_sleuth" {
   name                   = "iam-sleuth"
   handler                = "handler.handler"
   job_identifier         = "test"
-  runtime                = "python3.8"
+  runtime                = "python3.13"
   timeout                = "500"
   role_policy_arns_count = 2
   role_policy_arns = [aws_iam_policy.sleuth_policy.arn,
