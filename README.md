@@ -65,7 +65,7 @@ module "iam_sleuth" {
   name                   = "iam_sleuth"
   handler                = "handler.handler"
   job_identifier         = "iam_sleuth"
-  runtime                = "python3.8"
+  runtime                = "python3.13"
   timeout                = "500"
   role_policy_arns_count = 2
   role_policy_arns = ["${aws_iam_policy.sleuth_policy.arn}",
@@ -144,24 +144,34 @@ brew install circleci pre-commit python direnv ghr
 pre-commit install --install-hooks
 ```
 
-Now for downloading the python dependencies:
+Use Python 3.13 and Poetry 2.5.1 to install the locked application and development dependencies:
 
 ```sh
-# skip if you already have virtualenv on your machine
-python3 -m pip install --user virtualenv
-virtualenv venv
-source venv/bin/activate
-pip install -r ./sleuth/requirements.txt
+poetry env use python3.13
+poetry install
+```
+
+`scripts/build` installs the committed, hashed production export in `sleuth/requirements.txt`.
+After changing `poetry.lock`, regenerate that file with the Poetry export plugin and commit both files:
+
+```sh
+poetry self add poetry-plugin-export==1.9.0
+poetry export --only main --format requirements.txt --output sleuth/requirements.txt
+```
+
+Build from a clean working directory with Python 3.13 and pip 26.2.2 or newer:
+
+```sh
+poetry run python -m pip install --upgrade 'pip>=26.2.2'
+poetry run scripts/build
 ```
 
 ### Testing
 
-All following steps assume you have activated the virtual environment from the previous step.
-
 To run the Python app unittests:
 
 ```sh
-pytest
+poetry run pytest --full-trace
 ```
 
 To run the python app locally, using trussworks-ci as example account:
