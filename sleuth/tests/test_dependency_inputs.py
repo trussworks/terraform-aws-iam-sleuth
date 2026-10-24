@@ -24,6 +24,12 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parents[2]
 
 
+@pytest.mark.parametrize("region", ["AWS_REGION", "AWS_DEFAULT_REGION"])
+def test_workflow_region_fallback(region):
+    workflow = (ROOT / ".github/workflows/pytest.yml").read_text()
+    assert f"      {region}: ${{{{ vars.{region} || 'us-west-2' }}}}" in workflow
+
+
 def test_certifi_floor():
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
     floor = SpecifierSet(project["tool"]["poetry"]["dependencies"]["certifi"])
