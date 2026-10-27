@@ -106,9 +106,9 @@ idna==3.10 ; python_version >= "3.10" \
 jmespath==1.0.1 ; python_version >= "3.10" \
     --hash=sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980 \
     --hash=sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe
-python-dateutil==2.9.0.post0 ; python_version >= "3.10" \
-    --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
-    --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
+python-dateutil==3.0.0; python_version >= "3.10" \
+    --hash=sha256:3c79630202e4152c6add678446984236efe4f57e84d8e892aab0637bab82e9fd \
+    --hash=sha256:7ebcb3c29a92f3ceafe79a7a48a5c45677e9e004bbeec5742ac0bbb00560b7a2
 python-json-logger==3.3.0 ; python_version >= "3.10" \
     --hash=sha256:12b7e74b17775e7d565129296105bbe3910842d9d0eb083fc83a6a617aa8df84 \
     --hash=sha256:dd980fae8cffb24c13caf6e158d3d61c0d6d22342f932cb6e9deedab3d35eec7
