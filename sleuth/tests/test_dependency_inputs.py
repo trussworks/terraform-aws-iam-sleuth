@@ -43,6 +43,14 @@ def test_installed_certifi_and_selected_store():
     assert Path(get_cert_path(True)).samefile(certifi.where())
 
 
+@pytest.mark.parametrize(
+    "package, minimum",
+    [("idna", "3.15"), ("urllib3", "2.8.0"), ("setuptools", "84.1.0")],
+)
+def test_installed_security_floor(package, minimum):
+    assert Version(version(package)) >= Version(minimum)
+
+
 def test_production_requirements_match_lock():
     lock = tomllib.loads((ROOT / "poetry.lock").read_text())
     expected = {
